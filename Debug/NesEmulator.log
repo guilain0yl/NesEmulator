@@ -1,31 +1,5 @@
-﻿  nes_cpu_opcodes.c
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(224,40): warning C4244: “函数”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(225,29): warning C4244: “函数”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(258,40): warning C4244: “函数”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(259,29): warning C4244: “函数”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(324,1): warning C4244: “初始化”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(352,1): warning C4244: “初始化”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(374,7): error C2371: “tmp”: 重定义；不同的基类型
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(365): message : 参见“tmp”的声明
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(397,7): error C2371: “tmp”: 重定义；不同的基类型
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(388): message : 参见“tmp”的声明
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(390,1): warning C4244: “初始化”: 从“word”转换到“byte”，可能丢失数据
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(614,25): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(619,25): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(679,20): error C2084: 函数“void NOP_ZPX(p_cpu_info)”已有主体
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(520): message : 参见“NOP_ZPX”的前一个定义
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(692,26): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(697,26): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(710,20): error C2084: 函数“void NOP(p_cpu_info)”已有主体
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(551): message : 参见“NOP”的前一个定义
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(720,20): error C2084: 函数“void NOP_ABX(p_cpu_info)”已有主体
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(561): message : 参见“NOP_ABX”的前一个定义
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(759,20): error C2084: 函数“void NOP_ZP(p_cpu_info)”已有主体
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(433): message : 参见“NOP_ZP”的前一个定义
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(777,25): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(783,29): warning C4047: “函数”:“p_cpu_info”与“byte”的间接级别不同
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(783,27): warning C4024: “push_byte”: 形参和实参 1 的类型不同
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(783,11): error C2198: “push_byte”: 用于调用的参数太少
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(860,26): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(933,25): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
-F:\m_project\NesEmulator\nes_cpu_opcodes.c(938,25): warning C4133: “函数”: 从“byte (__cdecl *)(p_cpu_info)”到“func_word”的类型不兼容
+﻿  nes_cpu.c
+  nes_cpu_mem.c
+  nes_cpu_opcodes.c
+  正在生成代码...
+  NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe

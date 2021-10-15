@@ -60,7 +60,7 @@ typedef struct CPU_INFO
 #define RESET_VECTOR 0xFFFC
 #define IRQ_BRK_VECTOR 0xFFFE
 
-int init_opcodes(p_cpu_info info);
+void init_opcodes(p_cpu_info info);
 
 int init_cpu();
 void clean_cpu(p_cpu_info info);

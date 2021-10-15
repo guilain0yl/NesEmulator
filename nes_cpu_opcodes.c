@@ -179,17 +179,70 @@ static inline void sbc_iml_d(p_cpu_info info, func_byte func)
 	byte data = func(info);
 	word tmp = info->registers.A - data - (~info->registers.P & FLAG_C);
 	byte tmp1 = (byte)tmp;
-	//info->registers.A = (byte)tmp;
 	reset_flag(info, FLAG_N | FLAG_V | FLAG_Z | FLAG_C);
 	// see v flag url
+	// After SBC or CMP, this flag will be set if no borrow was the result, or alternatively a "greater than or equal" result.
 	// When the subtraction result is 0 to 255, the carry is set.
 	// When the subtraction result is less than 0, the carry is cleared.
+	// for example. 0x1 - 0x2 == 1 0000 0001 - 0000 0010 = 1111 1111 1111 = 0xFF = -1
 	set_flag(info, g_flag_nz_table[tmp1] | \
 		// (info->registers.A ^ data) , ensure A and data haven't same sign
 		// (info->registers.A ^ tmp1) , ensure A and result have same sign,if not, overflow,like 2 - -2 = -2
 		(((info->registers.A ^ data) & (info->registers.A ^ tmp1) & 0x80) ? FLAG_V : 0) | \
 		(tmp < 0x100));
 	info->registers.A = tmp1;
+}
+static inline void cmp_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	word tmp = info->registers.A - data;
+	byte tmp1 = (byte)tmp;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp1] | (tmp < 0x100));
+}
+static inline void cpx_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	word tmp = info->registers.X - data;
+	byte tmp1 = (byte)tmp;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp1] | (tmp < 0x100));
+}
+static inline void cpy_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	word tmp = info->registers.Y - data;
+	byte tmp1 = (byte)tmp;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp1] | (tmp < 0x100));
+}
+static inline void dec_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	byte data = read_byte(info, address) - 1;
+	write_byte(info, address, data);
+	set_flag(info, g_flag_nz_table[data]);
+}
+static inline void dec_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	byte data = zp_read_byte(info, address) - 1;
+	zp_write_byte(info, address, data);
+	set_flag(info, g_flag_nz_table[data]);
+}
+static inline void inc_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	byte data = read_byte(info, address) + 1;
+	write_byte(info, address, data);
+	set_flag(info, g_flag_nz_table[data]);
+}
+static inline void inc_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	byte data = zp_read_byte(info, address) + 1;
+	zp_write_byte(info, address, data);
+	set_flag(info, g_flag_nz_table[data]);
 }
 static inline void asl_iml_a(p_cpu_info info, func_word func)
 {
@@ -216,11 +269,11 @@ static inline void rol_iml_a(p_cpu_info info, func_word func)
 	write_byte(info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
 }
-static inline void rol_iml_a_zp(p_cpu_info info, func_word func)
+static inline void rol_iml_a_zp(p_cpu_info info, func_byte func)
 {
 	byte tmp = info->registers.P & FLAG_C;
 	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
-	word address = func(info);
+	byte address = func(info);
 	byte data = zp_read_byte(info, address);
 	zp_write_byte(info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
@@ -250,14 +303,63 @@ static inline void ror_iml_a(p_cpu_info info, func_word func)
 	write_byte(info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
 }
-static inline void ror_iml_a_zp(p_cpu_info info, func_word func)
+static inline void ror_iml_a_zp(p_cpu_info info, func_byte func)
 {
 	byte tmp = info->registers.P & FLAG_C;
 	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
-	word address = func(info);
+	byte address = func(info);
 	byte data = zp_read_byte(info, address);
 	zp_write_byte(info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
+}
+// move commands
+static inline void lda_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	info->registers.A = data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void sta_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	write_byte(info, address, info->registers.A);
+}
+static inline void sta_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	zp_write_byte(info, address, info->registers.A);
+}
+static inline void ldx_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	info->registers.X = data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+}
+static inline void stx_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	write_byte(info, address, info->registers.X);
+}
+static inline void stx_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	zp_write_byte(info, address, info->registers.X);
+}
+static inline void ldy_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	info->registers.Y = data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+}
+static inline void sty_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	write_byte(info, address, info->registers.Y);
+}
+static inline void sty_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	zp_write_byte(info, address, info->registers.Y);
 }
 // branch
 static inline void branch_true(p_cpu_info info, byte flag)
@@ -316,7 +418,7 @@ static inline void rla_iml_a(p_cpu_info info, func_word func)
 	// override pre flag
 	set_flag(info, g_flag_nz_table[info->registers.A]);
 }
-static inline void rla_iml_a_zp(p_cpu_info info, func_word func)
+static inline void rla_iml_a_zp(p_cpu_info info, func_byte func)
 {
 	// {adr}:={adr}rol
 	byte tmp = info->registers.P & FLAG_C;
@@ -345,7 +447,7 @@ static inline void sre_iml_a(p_cpu_info info, func_word func)
 	// override pre flag
 	set_flag(info, g_flag_nz_table[info->registers.A]);
 }
-static inline void sre_iml_a_zp(p_cpu_info info, func_word func)
+static inline void sre_iml_a_zp(p_cpu_info info, func_byte func)
 {
 	// {adr}:={adr}/2 LSR
 	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
@@ -382,7 +484,7 @@ static inline void rra_iml_a(p_cpu_info info, func_word func)
 		(res > 0xFF));
 	info->registers.A = tmp1;
 }
-static inline void rra_iml_a_zp(p_cpu_info info, func_word func)
+static inline void rra_iml_a_zp(p_cpu_info info, func_byte func)
 {
 	// first instruction. {adr}:={adr}ror
 	byte tmp = info->registers.P & FLAG_C;
@@ -405,6 +507,72 @@ static inline void rra_iml_a_zp(p_cpu_info info, func_word func)
 		(res > 0xFF));
 	info->registers.A = tmp1;
 
+}
+static inline void sax_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	write_byte(info, address, info->registers.A & info->registers.X);
+}
+static inline void sax_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	zp_write_byte(info, address, info->registers.A & info->registers.X);
+}
+static inline void lax_iml_d(p_cpu_info info, func_byte func)
+{
+	byte data = func(info);
+	info->registers.A = info->registers.X = data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void dcp_iml_a(p_cpu_info info, func_word func)
+{
+	word address = func(info);
+	byte data = read_byte(info, address) - 1;
+	write_byte(info, address, data);
+	word tmp = (word)info->registers.A - data;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp & 0xFF] | ((tmp < 0x100) ? FLAG_C : 0));
+}
+static inline void dcp_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	byte address = func(info);
+	byte data = zp_read_byte(info, address) - 1;
+	zp_write_byte(info, address, data);
+	word tmp = (word)info->registers.A - data;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp & 0xFF] | ((tmp < 0x100) ? FLAG_C : 0));
+}
+static inline void isc_iml_a(p_cpu_info info, func_word func)
+{
+	// {adr}:={adr}+1
+	word address = func(info);
+	byte data = read_byte(info, address) + 1;
+	write_byte(info, address, data);
+
+	// A:=A-{adr} like sbc {addr}
+	word tmp = info->registers.A - data - (~info->registers.P & FLAG_C);
+	byte tmp1 = (byte)tmp;
+	reset_flag(info, FLAG_N | FLAG_V | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp1] | \
+		(((info->registers.A ^ data) & (info->registers.A ^ tmp1) & 0x80) ? FLAG_V : 0) | \
+		(tmp < 0x100));
+	info->registers.A = tmp1;
+}
+static inline void isc_iml_a_zp(p_cpu_info info, func_byte func)
+{
+	// {adr}:={adr}+1
+	byte address = func(info);
+	byte data = zp_read_byte(info, address) + 1;
+	zp_write_byte(info, address, data);
+
+	// A:=A-{adr} like sbc {addr}
+	word tmp = info->registers.A - data - (~info->registers.P & FLAG_C);
+	byte tmp1 = (byte)tmp;
+	reset_flag(info, FLAG_N | FLAG_V | FLAG_Z | FLAG_C);
+	set_flag(info, g_flag_nz_table[tmp1] | \
+		(((info->registers.A ^ data) & (info->registers.A ^ tmp1) & 0x80) ? FLAG_V : 0) | \
+		(tmp < 0x100));
+	info->registers.A = tmp1;
 }
 
 // opcodes
@@ -676,11 +844,6 @@ static inline void RLA_IZY(p_cpu_info info)
 	// 33
 	rla_iml_a(info, A_IZY);
 }
-static inline void NOP_ZPX(p_cpu_info info)
-{
-	// 34
-	A_ZPX(info);
-}
 static inline void AND_ZPX(p_cpu_info info)
 {
 	// 35
@@ -707,20 +870,10 @@ static inline void AND_ABY(p_cpu_info info)
 	// 39
 	and_iml_d(info, D_ABY);
 }
-static inline void NOP(p_cpu_info info)
-{
-	// 3A
-	IMP_ACC(info);
-}
 static inline void RLA_ABY(p_cpu_info info)
 {
 	// 3B
 	rla_iml_a(info, A_ABY);
-}
-static inline void NOP_ABX(p_cpu_info info)
-{
-	// 3C
-	A_ABX(info);
 }
 static inline void AND_ABX(p_cpu_info info)
 {
@@ -755,11 +908,6 @@ static inline void SRE_IZX(p_cpu_info info)
 {
 	// 43
 	sre_iml_a(info, A_IZX);
-}
-static inline void NOP_ZP(p_cpu_info info)
-{
-	// 44
-	A_ZP(info);
 }
 static inline void EOR_ZP(p_cpu_info info)
 {
@@ -839,11 +987,6 @@ static inline void SRE_IZY(p_cpu_info info)
 	// 53
 	sre_iml_a(info, A_IZY);
 }
-static inline void NOP_ZPX(p_cpu_info info)
-{
-	// 54
-	A_ZPX(info);
-}
 static inline void EOR_ZPX(p_cpu_info info)
 {
 	// 55
@@ -870,20 +1013,10 @@ static inline void EOR_ABY(p_cpu_info info)
 	// 59
 	eor_iml_d(info, D_ABY);
 }
-static inline void NOP(p_cpu_info info)
-{
-	// 5A
-	IMP_ACC(info);
-}
 static inline void SRE_ABY(p_cpu_info info)
 {
 	// 5B
 	sre_iml_a(info, A_ABY);
-}
-static inline void NOP_ABX(p_cpu_info info)
-{
-	// 5C
-	A_ABX(info);
 }
 static inline void EOR_ABX(p_cpu_info info)
 {
@@ -916,11 +1049,6 @@ static inline void RRA_IZX(p_cpu_info info)
 {
 	// 63
 	rra_iml_a(info, A_IZX);
-}
-static inline void NOP_ZP(p_cpu_info info)
-{
-	// 64
-	A_ZP(info);
 }
 static inline void ADC_ZP(p_cpu_info info)
 {
@@ -998,48 +1126,672 @@ static inline void BVS_REL(p_cpu_info info)
 	// 70
 	branch_true(info, FLAG_V);
 }
+static inline void ADC_IZY(p_cpu_info info)
+{
+	// 71
+	adc_iml_d(info, D_IZY);
+}
+static inline void RRA_IZY(p_cpu_info info)
+{
+	// 73
+	rra_iml_a(info, A_IZY);
+}
+static inline void ADC_ZPX(p_cpu_info info)
+{
+	// 75
+	adc_iml_d(info, D_ZPX);
+}
+static inline void ROR_ZPX(p_cpu_info info)
+{
+	// 76
+	ror_iml_a_zp(info, A_ZPX);
+}
+static inline void RRA_ZPX(p_cpu_info info)
+{
+	// 77
+	rra_iml_a_zp(info, A_ZPX);
+}
+static inline void SEI(p_cpu_info info)
+{
+	// 78
+	IMP_ACC(info);
+	set_flag(info, FLAG_I);
+}
+static inline void ADC_ABY(p_cpu_info info)
+{
+	// 79
+	adc_iml_d(info, D_ABY);
+}
+static inline void RRA_ABY(p_cpu_info info)
+{
+	// 7B
+	rra_iml_a(info, A_ABY);
+}
+static inline void ADC_ABX(p_cpu_info info)
+{
+	// 7D
+	adc_iml_d(info, D_ABX);
+}
+static inline void ROR_ABX(p_cpu_info info)
+{
+	// 7E
+	ror_iml_a(info, A_ABX);
+}
+static inline void RRA_ABX(p_cpu_info info)
+{
+	// 7F
+	rra_iml_a(info, A_ABX);
+}
 // 0x80-0x8F
+static inline void NOP_IMM(p_cpu_info info)
+{
+	// 80
+	IMM(info);
+}
+static inline void STA_IZX(p_cpu_info info)
+{
+	// 81
+	sta_iml_a(info, A_IZX);
+}
+static inline void SAX_IZX(p_cpu_info info)
+{
+	// 83
+	sax_iml_a(info, A_IZX);
+}
+static inline void STY_ZP(p_cpu_info info)
+{
+	// 84
+	sty_iml_a_zp(info, A_ZP);
+}
+static inline void STA_ZP(p_cpu_info info)
+{
+	// 85
+	sta_iml_a_zp(info, A_ZP);
+}
+static inline void STX_ZP(p_cpu_info info)
+{
+	// 86
+	stx_iml_a_zp(info, A_ZP);
+}
+static inline void SAX_ZP(p_cpu_info info)
+{
+	// 87
+	sax_iml_a_zp(info, A_ZP);
+}
+static inline void DEY(p_cpu_info info)
+{
+	// 88
+	IMP_ACC(info);
+	info->registers.Y -= 1;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+}
+static inline void TXA(p_cpu_info info)
+{
+	// 8A
+	// A:=X
+	IMP_ACC(info);
+	info->registers.A = info->registers.X;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void XAA_IMM(p_cpu_info info)
+{
+	// 8B
+	// A:=X&#{imm}
+	byte data = IMM(info);
+	info->registers.A = info->registers.X & data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void STY_ABS(p_cpu_info info)
+{
+	// 8C
+	sty_iml_a(info, A_ABS);
+}
+static inline void STA_ABS(p_cpu_info info)
+{
+	// 8D
+	sta_iml_a(info, A_ABS);
+}
+static inline void STX_ABS(p_cpu_info info)
+{
+	// 8E
+	stx_iml_a(info, A_ABS);
+}
+static inline void SAX_ABS(p_cpu_info info)
+{
+	// 8F
+	sax_iml_a(info, A_ABS);
+}
 // 0x90-0x9F
 static inline void BCC_REL(p_cpu_info info)
 {
 	// 90
 	branch_false(info, FLAG_C);
 }
+static inline void STA_IZY(p_cpu_info info)
+{
+	// 91
+	sta_iml_a(info, A_IZY);
+}
+static inline void AHX_IZY(p_cpu_info info)
+{
+	// 93
+	// {adr}:=A&X&H
+	// nop
+}
+static inline void STY_ZPX(p_cpu_info info)
+{
+	// 94
+	sty_iml_a_zp(info, A_ZPX);
+}
+static inline void STA_ZPX(p_cpu_info info)
+{
+	// 95
+	sta_iml_a_zp(info, A_ZPX);
+}
+static inline void STX_ZPY(p_cpu_info info)
+{
+	// 96
+	stx_iml_a_zp(info, A_ZPY);
+}
+static inline void SAX_ZPY(p_cpu_info info)
+{
+	// 97
+	sax_iml_a_zp(info, A_ZPY);
+}
+static inline void TYA(p_cpu_info info)
+{
+	// 98
+	IMP_ACC(info);
+	info->registers.A = info->registers.Y;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void STA_ABY(p_cpu_info info)
+{
+	// 99
+	sta_iml_a(info, A_ABY);
+}
+static inline void TXS(p_cpu_info info)
+{
+	// 9A
+	IMP_ACC(info);
+	info->registers.SP = info->registers.X;
+}
+static inline void TAS_ABY(p_cpu_info info)
+{
+	// 9B
+	// S:=A&X {adr}:=S&H
+	// nop
+}
+static inline void SHY_ABX(p_cpu_info info)
+{
+	// 9C
+	// {adr}:=Y&H
+	// nop
+}
+static inline void STA_ABX(p_cpu_info info)
+{
+	// 9D
+	sta_iml_a(info, A_ABX);
+}
+static inline void SHX_ABY(p_cpu_info info)
+{
+	// 9E
+	// {adr}:=X&H
+	// nop
+}
+static inline void AHX_ABY(p_cpu_info info)
+{
+	// 9F
+	// {adr}:=A&X&H
+	// nop
+}
 // 0xA0-0xAF
+static inline void LDY_IMM(p_cpu_info info)
+{
+	// A0
+	ldy_iml_d(info, IMM);
+}
+static inline void LDA_IZX(p_cpu_info info)
+{
+	// A1
+	lda_iml_d(info, D_IZX);
+}
+static inline void LDX_IMM(p_cpu_info info)
+{
+	// A2
+	ldx_iml_d(info, IMM);
+}
+static inline void LAX_IZX(p_cpu_info info)
+{
+	// A3
+	ldx_iml_d(info, D_IZX);
+}
+static inline void LDY_ZP(p_cpu_info info)
+{
+	// A4
+	ldy_iml_d(info, D_ZP);
+}
+static inline void LDA_ZP(p_cpu_info info)
+{
+	// A5
+	lda_iml_d(info, D_ZP);
+}
+static inline void LDX_ZP(p_cpu_info info)
+{
+	// A6
+	ldx_iml_d(info, D_ZP);
+}
+static inline void LAX_ZP(p_cpu_info info)
+{
+	// A7
+	lax_iml_d(info, D_ZP);
+}
+static inline void TAY(p_cpu_info info)
+{
+	// A8
+	IMP_ACC(info);
+	info->registers.Y = info->registers.A;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+}
+static inline void LDA_IMM(p_cpu_info info)
+{
+	// A9
+	lda_iml_d(info, IMM);
+}
+static inline void TAX(p_cpu_info info)
+{
+	// AA
+	IMP_ACC(info);
+	info->registers.X = info->registers.A;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+}
+static inline void LAX_IMM(p_cpu_info info)
+{
+	// AB
+	lax_iml_d(info, IMM);
+}
+static inline void LDY_ABS(p_cpu_info info)
+{
+	// AC
+	ldy_iml_d(info, D_ABS);
+}
+static inline void LDA_ABS(p_cpu_info info)
+{
+	// AD
+	lda_iml_d(info, D_ABS);
+}
+static inline void LDX_ABS(p_cpu_info info)
+{
+	// AE
+	ldx_iml_d(info, D_ABS);
+}
+static inline void LAX_ABS(p_cpu_info info)
+{
+	// AF
+	lax_iml_d(info, D_ABS);
+}
 // 0xB0-0xBF
 static inline void BCS_REL(p_cpu_info info)
 {
 	// B0
 	branch_true(info, FLAG_C);
 }
+static inline void LDA_IZY(p_cpu_info info)
+{
+	// B1
+	lda_iml_d(info, D_IZY);
+}
+static inline void LAX_IZY(p_cpu_info info)
+{
+	// B3
+	lax_iml_d(info, D_IZY);
+}
+static inline void LDY_ZPX(p_cpu_info info)
+{
+	// B4
+	ldy_iml_d(info, D_ZPX);
+}
+static inline void LDA_ZPX(p_cpu_info info)
+{
+	// B5
+	lda_iml_d(info, D_ZPX);
+}
+static inline void LDX_ZPY(p_cpu_info info)
+{
+	// B6
+	ldx_iml_d(info, D_ZPY);
+}
+static inline void LAX_ZPY(p_cpu_info info)
+{
+	// B7
+	lax_iml_d(info, D_ZPY);
+}
+static inline void CLV(p_cpu_info info)
+{
+	// B8
+	IMP_ACC(info);
+	reset_flag(info, FLAG_V);
+}
+static inline void LDA_ABY(p_cpu_info info)
+{
+	// B9
+	lda_iml_d(info, D_ABY);
+}
+static inline void TSX(p_cpu_info info)
+{
+	// BA
+	IMP_ACC(info);
+	info->registers.X = info->registers.SP;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+}
+static inline void LAS_ABY(p_cpu_info info)
+{
+	// BB
+	word address = A_ABY(info);
+	byte data = read_byte(info, address) & info->registers.SP;
+	info->registers.A = info->registers.X = info->registers.SP = data;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+}
+static inline void LDY_ABX(p_cpu_info info)
+{
+	// BC
+	ldy_iml_d(info, D_ABX);
+}
+static inline void LDA_ABX(p_cpu_info info)
+{
+	// BD
+	lda_iml_d(info, D_ABX);
+}
+static inline void LDX_ABY(p_cpu_info info)
+{
+	// BE
+	ldx_iml_d(info, D_ABY);
+}
+static inline void LAX_ABY(p_cpu_info info)
+{
+	// BF
+	lax_iml_d(info, D_ABY);
+}
 // 0xC0-0xCF
+static inline void CPY_IMM(p_cpu_info info)
+{
+	// C0
+	cpy_iml_d(info, IMM);
+}
+static inline void CMP_IZX(p_cpu_info info)
+{
+	// C1
+	cmp_iml_d(info, D_IZX);
+}
+static inline void DCP_IZX(p_cpu_info info)
+{
+	// C3
+	dcp_iml_a(info, A_IZX);
+}
+static inline void CPY_ZP(p_cpu_info info)
+{
+	// C4
+	cpy_iml_d(info, D_ZP);
+}
+static inline void CMP_ZP(p_cpu_info info)
+{
+	// C5
+	cmp_iml_d(info, D_ZP);
+}
+static inline void DEC_ZP(p_cpu_info info)
+{
+	// C6
+	dec_iml_a_zp(info, A_ZP);
+}
+static inline void DCP_ZP(p_cpu_info info)
+{
+	// C7
+	dcp_iml_a_zp(info, A_ZP);
+}
+static inline void INY(p_cpu_info info)
+{
+	// C8
+	IMP_ACC(info);
+	info->registers.Y += 1;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+}
+static inline void CMP_IMM(p_cpu_info info)
+{
+	// C9
+	cmp_iml_d(info, IMM);
+}
+static inline void DEX(p_cpu_info info)
+{
+	// CA
+	IMP_ACC(info);
+	info->registers.X -= 1;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+}
+static inline void AXS_IMM(p_cpu_info info)
+{
+	// CB
+	// X:=A&X-#{imm}
+	byte data = IMM(info);
+	byte tmp = info->registers.A & info->registers.X;
+	word tmp1 = tmp - data;
+	info->registers.X = (byte)tmp1;
+	set_flag(info, g_flag_nz_table[info->registers.X] | (tmp1 < 0x100));
+}
+static inline void CPY_ABS(p_cpu_info info)
+{
+	// CC
+	cpy_iml_d(info, D_ABS);
+}
+static inline void CMP_ABS(p_cpu_info info)
+{
+	// CD
+	cmp_iml_d(info, D_ABS);
+}
+static inline void DEC_ABS(p_cpu_info info)
+{
+	// CE
+	dec_iml_a(info, A_ABS);
+}
+static inline void DCP_ABS(p_cpu_info info)
+{
+	// CF
+	dcp_iml_a(info, A_ABS);
+}
 // 0xD0-0xDF
 static inline void BNE_REL(p_cpu_info info)
 {
 	// D0
 	branch_false(info, FLAG_Z);
 }
+static inline void CMP_IZY(p_cpu_info info)
+{
+	// D1
+	cmp_iml_d(info, D_IZY);
+}
+static inline void DCP_IZY(p_cpu_info info)
+{
+	// D3
+	dcp_iml_a(info, A_IZY);
+}
+static inline void CMP_ZPX(p_cpu_info info)
+{
+	// D5
+	cmp_iml_d(info, D_ZPX);
+}
+static inline void DEC_ZPX(p_cpu_info info)
+{
+	// D6
+	dec_iml_a_zp(info, A_ZPX);
+}
+static inline void DCP_ZPX(p_cpu_info info)
+{
+	// D7
+	dcp_iml_a_zp(info, A_ZPX);
+}
+static inline void CLD(p_cpu_info info)
+{
+	// D8
+	IMP_ACC(info);
+	reset_flag(info, FLAG_D);
+}
+static inline void CMP_ABY(p_cpu_info info)
+{
+	// D9
+	cmp_iml_d(info, D_ABY);
+}
+static inline void DCP_ABY(p_cpu_info info)
+{
+	// DB
+	dcp_iml_a(info, A_ABY);
+}
+static inline void CMP_ABX(p_cpu_info info)
+{
+	// DD
+	cmp_iml_d(info, D_ABX);
+}
+static inline void DEC_ABX(p_cpu_info info)
+{
+	// DE
+	dec_iml_a(info, A_ABX);
+}
+static inline void DCP_ABX(p_cpu_info info)
+{
+	// DF
+	dcp_iml_a(info, A_ABX);
+}
 // 0xE0-0xEF
+static inline void CPX_IMM(p_cpu_info info)
+{
+	// E0
+	cpx_iml_d(info, IMM);
+}
+static inline void SBC_IZX(p_cpu_info info)
+{
+	// E1
+	sbc_iml_d(info, D_IZX);
+}
+static inline void ISC_IZX(p_cpu_info info)
+{
+	// E3
+	isc_iml_a(info, A_IZX);
+}
+static inline void CPX_ZP(p_cpu_info info)
+{
+	// E4
+	cpx_iml_d(info, D_ZP);
+}
+static inline void SBC_ZP(p_cpu_info info)
+{
+	// E5
+	sbc_iml_d(info, D_ZP);
+}
+static inline void INC_ZP(p_cpu_info info)
+{
+	// E6
+	inc_iml_a_zp(info, A_ZP);
+}
+static inline void ISC_ZP(p_cpu_info info)
+{
+	// E7
+	isc_iml_a_zp(info, A_ZP);
+}
+static inline void INX(p_cpu_info info)
+{
+	// E8
+	IMP_ACC(info);
+	info->registers.X += 1;
+	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+}
+static inline void SBC_IMM(p_cpu_info info)
+{
+	// E9
+	sbc_iml_d(info, IMM);
+}
+static inline void CPX_ABS(p_cpu_info info)
+{
+	// EC
+	cpx_iml_d(info, D_ABS);
+}
+static inline void SBC_ABS(p_cpu_info info)
+{
+	// ED
+	sbc_iml_d(info, D_ABS);
+}
+static inline void INC_ABS(p_cpu_info info)
+{
+	// EE
+	inc_iml_a(info, A_ABS);
+}
+static inline void ISC_ABS(p_cpu_info info)
+{
+	// EF
+	isc_iml_a(info, A_ABS);
+}
 // 0xF0-0xFF
 static inline void BEQ_REL(p_cpu_info info)
 {
 	// F0
 	branch_true(info, FLAG_Z);
 }
+static inline void SBC_IZY(p_cpu_info info)
+{
+	// F1
+	sbc_iml_d(info, D_IZY);
+}
+static inline void ISC_IZY(p_cpu_info info)
+{
+	// F3
+	isc_iml_a(info, A_IZY);
+}
+static inline void SBC_ZPX(p_cpu_info info)
+{
+	// F5
+	sbc_iml_d(info, D_ZPX);
+}
+static inline void INC_ZPX(p_cpu_info info)
+{
+	// F6
+	inc_iml_a_zp(info, A_ZPX);
+}
+static inline void ISC_ZPX(p_cpu_info info)
+{
+	// F7
+	isc_iml_a_zp(info, A_ZPX);
+}
+static inline void SED(p_cpu_info info)
+{
+	// F8
+	IMP_ACC(info);
+	set_flag(info, FLAG_D);
+}
+static inline void SBC_ABY(p_cpu_info info)
+{
+	// F9
+	sbc_iml_d(info, D_ABY);
+}
+static inline void ISC_ABY(p_cpu_info info)
+{
+	// FB
+	isc_iml_a(info, A_ABY);
+}
+static inline void SBC_ABX(p_cpu_info info)
+{
+	// FD
+	sbc_iml_d(info, D_ABX);
+}
+static inline void INC_ABX(p_cpu_info info)
+{
+	// FE
+	inc_iml_a(info, A_ABX);
+}
+static inline void ISC_ABX(p_cpu_info info)
+{
+	// FF
+	isc_iml_a(info, A_ABX);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-int init_opcodes(p_cpu_info info)
+// init
+void init_opcodes(p_cpu_info info)
 {
 	// 0x00-0x0F
 	info->opcodes[0x0] = BRK;
