@@ -1811,36 +1811,261 @@ void init_opcodes(p_cpu_info info)
 	info->opcodes[0xF] = SLO_ABS;
 
 	// 0x10-0x1f
-	info->opcodes[0x0] = BLP_REL;
-	info->opcodes[0x1] = ORA_IZY;
-	info->opcodes[0x3] = SLO_IZY;
-	info->opcodes[0x4] = NOP_ZPX;
-	info->opcodes[0x5] = ORA_ZPX;
-	info->opcodes[0x6] = ASL_ZPX;
-	info->opcodes[0x7] = SLO_ZPX;
-	info->opcodes[0x8] = CLC;
-	info->opcodes[0x9] = ORA_ABY;
-	info->opcodes[0xA] = NOP;
-	info->opcodes[0xB] = SLO_ABY;
-	info->opcodes[0xC] = NOP_ABX;
-	info->opcodes[0xD] = ORA_ABX;
-	info->opcodes[0xE] = ASL_ABX;
-	info->opcodes[0xF] = SLO_ABX;
+	info->opcodes[0x10] = BLP_REL;
+	info->opcodes[0x11] = ORA_IZY;
+	info->opcodes[0x13] = SLO_IZY;
+	info->opcodes[0x14] = NOP_ZPX;
+	info->opcodes[0x15] = ORA_ZPX;
+	info->opcodes[0x16] = ASL_ZPX;
+	info->opcodes[0x17] = SLO_ZPX;
+	info->opcodes[0x18] = CLC;
+	info->opcodes[0x19] = ORA_ABY;
+	info->opcodes[0x1A] = NOP;
+	info->opcodes[0x1B] = SLO_ABY;
+	info->opcodes[0x1C] = NOP_ABX;
+	info->opcodes[0x1D] = ORA_ABX;
+	info->opcodes[0x1E] = ASL_ABX;
+	info->opcodes[0x1F] = SLO_ABX;
 
 	// 0x20-0x2F
-	info->opcodes[0x0] = JSR_ABS;
-	info->opcodes[0x1] = AND_IZX;
-	info->opcodes[0x3] = RLA_IZX;
-	info->opcodes[0x4] = BIT_ZP;
-	info->opcodes[0x5] = AND_ZP;
-	info->opcodes[0x6] = ROL_ZP;
-	info->opcodes[0x7] = RLA_ZP;
-	info->opcodes[0x8] = PLP;
-	info->opcodes[0x9] = AND_IMM;
-	info->opcodes[0xA] = ROL;
-	info->opcodes[0xB] = ANC_IMM;
-	info->opcodes[0xC] = BIT_ABS;
-	info->opcodes[0xD] = AND_ABS;
-	info->opcodes[0xE] = ROL_ABS;
-	info->opcodes[0xF] = RLA_ABS;
+	info->opcodes[0x20] = JSR_ABS;
+	info->opcodes[0x21] = AND_IZX;
+	info->opcodes[0x23] = RLA_IZX;
+	info->opcodes[0x24] = BIT_ZP;
+	info->opcodes[0x25] = AND_ZP;
+	info->opcodes[0x26] = ROL_ZP;
+	info->opcodes[0x27] = RLA_ZP;
+	info->opcodes[0x28] = PLP;
+	info->opcodes[0x29] = AND_IMM;
+	info->opcodes[0x2A] = ROL;
+	info->opcodes[0x2B] = ANC_IMM;
+	info->opcodes[0x2C] = BIT_ABS;
+	info->opcodes[0x2D] = AND_ABS;
+	info->opcodes[0x2E] = ROL_ABS;
+	info->opcodes[0x2F] = RLA_ABS;
+
+	// 0x30-0x3F
+	info->opcodes[0x30] = BMI_REL;
+	info->opcodes[0x31] = AND_IZY;
+	info->opcodes[0x33] = RLA_IZY;
+	info->opcodes[0x34] = NOP_ZPX;
+	info->opcodes[0x35] = AND_ZPX;
+	info->opcodes[0x36] = ROL_ZPX;
+	info->opcodes[0x37] = RLA_ZPX;
+	info->opcodes[0x38] = SEC;
+	info->opcodes[0x39] = AND_ABY;
+	info->opcodes[0x3A] = NOP;
+	info->opcodes[0x3B] = RLA_ABY;
+	info->opcodes[0x3C] = NOP_ABX;
+	info->opcodes[0x3D] = AND_ABX;
+	info->opcodes[0x3E] = ROL_ABX;
+	info->opcodes[0x3F] = RLA_ABX;
+
+	// 0x40-0x4F
+	info->opcodes[0x40] = RTI;
+	info->opcodes[0x41] = EOR_IZX;
+	info->opcodes[0x43] = SRE_IZX;
+	info->opcodes[0x44] = NOP_ZP;
+	info->opcodes[0x45] = EOR_ZP;
+	info->opcodes[0x46] = LSR_ZP;
+	info->opcodes[0x47] = SRE_ZP;
+	info->opcodes[0x48] = PHA;
+	info->opcodes[0x49] = EOR_IMM;
+	info->opcodes[0x4A] = LSR;
+	info->opcodes[0x4B] = ALR_IMM;
+	info->opcodes[0x4C] = JMP_ABS;
+	info->opcodes[0x4D] = EOR_ABS;
+	info->opcodes[0x4E] = LSR_ABS;
+	info->opcodes[0x4F] = SRE_ABS;
+
+	// 0x50-0x5F
+	info->opcodes[0x50] = BVC_REL;
+	info->opcodes[0x51] = EOR_IZY;
+	info->opcodes[0x53] = SRE_IZY;
+	info->opcodes[0x54] = NOP_ZPX;
+	info->opcodes[0x55] = EOR_ZPX;
+	info->opcodes[0x56] = LSR_ZPX;
+	info->opcodes[0x57] = SRE_ZPX;
+	info->opcodes[0x58] = CLI;
+	info->opcodes[0x59] = EOR_ABY;
+	info->opcodes[0x5A] = NOP;
+	info->opcodes[0x5B] = SRE_ABY;
+	info->opcodes[0x5C] = NOP_ABX;
+	info->opcodes[0x5D] = EOR_ABX;
+	info->opcodes[0x5E] = LSR_ABX;
+	info->opcodes[0x5F] = SRE_ABX;
+
+	// 0x60-0x6F
+	info->opcodes[0x60] = RTS;
+	info->opcodes[0x61] = ADC_IZX;
+	info->opcodes[0x63] = RRA_IZX;
+	info->opcodes[0x64] = NOP_ZP;
+	info->opcodes[0x65] = ADC_ZP;
+	info->opcodes[0x66] = ROR_ZP;
+	info->opcodes[0x67] = RRA_ZP;
+	info->opcodes[0x68] = PLA;
+	info->opcodes[0x69] = ADC_IMM;
+	info->opcodes[0x6A] = ROR;
+	info->opcodes[0x6B] = ARR_IMM;
+	info->opcodes[0x6C] = JMP_IND;
+	info->opcodes[0x6D] = ADC_ABS;
+	info->opcodes[0x6E] = ROR_ABS;
+	info->opcodes[0x6F] = RRA_ABS;
+
+	// 0x70-0x7F
+	info->opcodes[0x70] = BVS_REL;
+	info->opcodes[0x71] = ADC_IZY;
+	info->opcodes[0x73] = RRA_IZY;
+	info->opcodes[0x74] = NOP_ZPX;
+	info->opcodes[0x75] = ADC_ZPX;
+	info->opcodes[0x76] = ROR_ZPX;
+	info->opcodes[0x77] = RRA_ZPX;
+	info->opcodes[0x78] = SEI;
+	info->opcodes[0x79] = ADC_ABY;
+	info->opcodes[0x7A] = NOP;
+	info->opcodes[0x7B] = RRA_ABY;
+	info->opcodes[0x7C] = NOP_ABX;
+	info->opcodes[0x7D] = ADC_ABX;
+	info->opcodes[0x7E] = ROR_ABX;
+	info->opcodes[0x7F] = RRA_ABX;
+
+	// 0x80-0x8F
+	info->opcodes[0x80] = NOP_IMM;
+	info->opcodes[0x81] = STA_IZX;
+	info->opcodes[0x82] = NOP_IMM;
+	info->opcodes[0x83] = SAX_IZX;
+	info->opcodes[0x84] = STY_ZP;
+	info->opcodes[0x85] = STA_ZP;
+	info->opcodes[0x86] = STX_ZP;
+	info->opcodes[0x87] = SAX_ZP;
+	info->opcodes[0x88] = DEY;
+	info->opcodes[0x89] = NOP_IMM;
+	info->opcodes[0x8A] = TAX;
+	info->opcodes[0x8B] = XAA_IMM;
+	info->opcodes[0x8C] = STY_ABS;
+	info->opcodes[0x8D] = STA_ABS;
+	info->opcodes[0x8E] = STX_ABS;
+	info->opcodes[0x8F] = SAX_ABS;
+
+	// 0x90-0x9F
+	info->opcodes[0x90] = BCC_REL;
+	info->opcodes[0x91] = STA_IZY;
+	info->opcodes[0x93] = AHX_IZY;
+	info->opcodes[0x94] = STY_ZPX;
+	info->opcodes[0x95] = STA_ZPX;
+	info->opcodes[0x96] = STX_ZPY;
+	info->opcodes[0x97] = SAX_ZPY;
+	info->opcodes[0x98] = TYA;
+	info->opcodes[0x99] = STA_ABY;
+	info->opcodes[0x9A] = TXS;
+	info->opcodes[0x9B] = TAS_ABY;
+	info->opcodes[0x9C] = SHY_ABX;
+	info->opcodes[0x9D] = STA_ABX;
+	info->opcodes[0x9E] = SHX_ABY;
+	info->opcodes[0x9F] = AHX_ABY;
+
+	// 0xA0-0xAF
+	info->opcodes[0xA0] = LDY_IMM;
+	info->opcodes[0xA1] = LDA_IZX;
+	info->opcodes[0xA2] = LDX_IMM;
+	info->opcodes[0xA3] = LAX_IZX;
+	info->opcodes[0xA4] = LDY_ZP;
+	info->opcodes[0xA5] = LDA_ZP;
+	info->opcodes[0xA6] = LDX_ZP;
+	info->opcodes[0xA7] = LAX_ZP;
+	info->opcodes[0xA8] = TAY;
+	info->opcodes[0xA9] = LDA_IMM;
+	info->opcodes[0xAA] = TAX;
+	info->opcodes[0xAB] = LAX_IMM;
+	info->opcodes[0xAC] = LDY_ABS;
+	info->opcodes[0xAD] = LDA_ABS;
+	info->opcodes[0xAE] = LDX_ABS;
+	info->opcodes[0xAF] = LAX_ABS;
+
+	// 0xB0-0xBF
+	info->opcodes[0xB0] = BCS_REL;
+	info->opcodes[0xB1] = LDA_IZY;
+	info->opcodes[0xB3] = LAX_IZY;
+	info->opcodes[0xB4] = LDY_ZPX;
+	info->opcodes[0xB5] = LDA_ZPX;
+	info->opcodes[0xB6] = LDX_ZPY;
+	info->opcodes[0xB7] = LAX_ZPY;
+	info->opcodes[0xB8] = CLV;
+	info->opcodes[0xB9] = LDA_ABY;
+	info->opcodes[0xBA] = TSX;
+	info->opcodes[0xBB] = LAS_ABY;
+	info->opcodes[0xBC] = LDY_ABX;
+	info->opcodes[0xBD] = LDA_ABX;
+	info->opcodes[0xBE] = LDX_ABY;
+	info->opcodes[0xBF] = LAX_ABY;
+
+	// 0xC0-0xCF
+	info->opcodes[0xC0] = CPY_IMM;
+	info->opcodes[0xC1] = CMP_IZX;
+	info->opcodes[0xC2] = NOP_IMM;
+	info->opcodes[0xC3] = DCP_IZX;
+	info->opcodes[0xC4] = CPY_ZP;
+	info->opcodes[0xC5] = CMP_ZP;
+	info->opcodes[0xC6] = DEC_ZP;
+	info->opcodes[0xC7] = DCP_ZP;
+	info->opcodes[0xC8] = INY;
+	info->opcodes[0xC9] = CMP_IMM;
+	info->opcodes[0xCA] = DEX;
+	info->opcodes[0xCB] = AXS_IMM;
+	info->opcodes[0xCC] = CPY_ABS;
+	info->opcodes[0xCD] = CMP_ABS;
+	info->opcodes[0xCE] = DEC_ABS;
+	info->opcodes[0xCF] = DCP_ABS;
+
+	// 0xD0-0xDF
+	info->opcodes[0xD0] = BNE_REL;
+	info->opcodes[0xD1] = CMP_IZY;
+	info->opcodes[0xD3] = DCP_IZY;
+	info->opcodes[0xD4] = NOP_ZPX;
+	info->opcodes[0xD5] = CMP_ZPX;
+	info->opcodes[0xD6] = DEC_ZPX;
+	info->opcodes[0xD7] = DCP_ZPX;
+	info->opcodes[0xD8] = CLD;
+	info->opcodes[0xD9] = CMP_ABY;
+	info->opcodes[0xDA] = NOP;
+	info->opcodes[0xDB] = DCP_ABY;
+	info->opcodes[0xDC] = NOP_ABX;
+	info->opcodes[0xDD] = CMP_ABX;
+	info->opcodes[0xDE] = DEC_ABX;
+	info->opcodes[0xDF] = DCP_ABX;
+
+	// 0xE0-0xEF
+	info->opcodes[0xE0] = CPX_IMM;
+	info->opcodes[0xE1] = SBC_IZX;
+	info->opcodes[0xE2] = NOP_IMM;
+	info->opcodes[0xE3] = ISC_IZX;
+	info->opcodes[0xE4] = CPX_ZP;
+	info->opcodes[0xE5] = SBC_ZP;
+	info->opcodes[0xE6] = INC_ZP;
+	info->opcodes[0xE7] = ISC_ZP;
+	info->opcodes[0xE8] = INX;
+	info->opcodes[0xE9] = SBC_IMM;
+	info->opcodes[0xEA] = NOP;
+	info->opcodes[0xEB] = SBC_IMM;
+	info->opcodes[0xEC] = CPX_ABS;
+	info->opcodes[0xED] = SBC_ABS;
+	info->opcodes[0xEE] = INC_ABS;
+	info->opcodes[0xEF] = ISC_ABS;
+
+	// 0xF0-0xFF
+	info->opcodes[0xF0] = BEQ_REL;
+	info->opcodes[0xF1] = SBC_IZY;
+	info->opcodes[0xF3] = ISC_IZY;
+	info->opcodes[0xF4] = NOP_ZPX;
+	info->opcodes[0xF5] = SBC_ZPX;
+	info->opcodes[0xF6] = INC_ZPX;
+	info->opcodes[0xF7] = ISC_ZPX;
+	info->opcodes[0xF8] = SED;
+	info->opcodes[0xF9] = SBC_ABY;
+	info->opcodes[0xFA] = NOP;
+	info->opcodes[0xFB] = ISC_ABY;
+	info->opcodes[0xFC] = NOP_ABX;
+	info->opcodes[0xFD] = SBC_ABX;
+	info->opcodes[0xFE] = INC_ABX;
+	info->opcodes[0xFF] = ISC_ABX;
 }
