@@ -30,6 +30,9 @@
     <ClInclude Include="nes_types.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="nes_ppu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="nes_file.c">

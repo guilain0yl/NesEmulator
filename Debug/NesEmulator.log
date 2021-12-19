@@ -1,5 +1,2 @@
-﻿  nes_cpu.c
-  nes_cpu_mem.c
-  nes_cpu_opcodes.c
-  正在生成代码...
+﻿  nes_cpu_opcodes.c
   NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe

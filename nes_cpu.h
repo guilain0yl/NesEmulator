@@ -36,6 +36,8 @@ typedef struct CPU_INFO
 #define BASE_STACK 0x100
 #define RAM 0x200
 #define RAM_MIRRORS 0x800
+// The PPU¡¯s registers are mostly located in the I/O registers section of CPU memory 
+// at $2000 - $2007 and $4014 as described in Appendix B
 #define PPU_REGISTERS 0x2000
 #define PPU_REGISTERS_MIRRORS 0x2008
 #define IO_REGISTERS 0x4000
