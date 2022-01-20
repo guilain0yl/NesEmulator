@@ -1,2 +1,3 @@
-﻿  nes_main.c
+﻿  nes_mem.c
+F:\m_project\NesEmulator\nes_mem.c(3,49): warning C4028: 形参 2 与声明不同
   NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe

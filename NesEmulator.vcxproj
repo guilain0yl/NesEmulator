@@ -19,11 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="nes_cpu.h" />
+    <ClInclude Include="nes_hardware.h" />
+    <ClInclude Include="nes_mapper.h" />
+    <ClInclude Include="nes_mem.h" />
     <ClInclude Include="nes_rom.h" />
     <ClInclude Include="nes_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="mapper\nes_mapper_000.c" />
+    <ClCompile Include="nes_cpu.c" />
     <ClCompile Include="nes_main.c" />
+    <ClCompile Include="nes_mapper.c" />
+    <ClCompile Include="nes_mem.c" />
     <ClCompile Include="nes_rom.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

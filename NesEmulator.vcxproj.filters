@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\mapper">
+      <UniqueIdentifier>{bfeccde1-0380-4547-82ab-d51ac484c0a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="nes_rom.h">
@@ -21,12 +24,36 @@
     <ClInclude Include="nes_utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="nes_mapper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nes_cpu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nes_hardware.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nes_mem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="nes_rom.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="nes_main.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nes_mapper.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nes_cpu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mapper\nes_mapper_000.c">
+      <Filter>源文件\mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="nes_mem.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

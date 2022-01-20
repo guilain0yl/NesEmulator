@@ -54,10 +54,19 @@ int load_rom(const char* path, p_nes_rom_info info)
 	}
 
 	// check nes format
+	if (!(info->rom_header->constant[0] == 0x4E &&
+		info->rom_header->constant[1] == 0x45 &&
+		info->rom_header->constant[2] == 0x53 &&
+		info->rom_header->constant[3] == 0x1A))
+	{
+		result = NES_ROM_FORMAT_UNSUPPORT_ERROR;
+		goto end;
+	}
+
 	info->mapper_number = MAPPER_NUMBER(info->rom_header->flag_6, info->rom_header->flag_7);
 	if (NES_2(info->rom_header->flag_7))
 	{
-		result = NES_ROM_FORMAT_UNSUPPORT_ERROR;
+		result = NES_ROM_VERSION_UNSUPPORT_ERROR;
 		goto end;
 	}
 
