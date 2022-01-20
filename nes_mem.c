@@ -1,6 +1,6 @@
 #include"nes_hardware.h"
 
-uword read_w(uword address, p_nes_hardware_info info)
+uword read_w(uword address, p_nes_mem_info info)
 {
 	if (address >= 0x8000)
 	{
@@ -8,8 +8,8 @@ uword read_w(uword address, p_nes_hardware_info info)
 	}
 	if (address >= 0xC000)
 	{
-		ubyte low = ((ubyte*)info->mem_info->current_upper_bank_pointer)[address - 0xC000];
-		ubyte high = ((ubyte*)info->mem_info->current_upper_bank_pointer)[address - 0xC000 + 1];
+		ubyte low = ((ubyte*)info->current_upper_bank_pointer)[address - 0xC000];
+		ubyte high = ((ubyte*)info->current_upper_bank_pointer)[address - 0xC000 + 1];
 		uword r = (((uword)high) << 8 | low);
 		return r;
 	}

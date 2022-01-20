@@ -23,9 +23,9 @@ int main()
 	printf("ROM: PRG-ROM: %d x 16kb   CHR-ROM %d x 8kb   Mapper: %03d\n", \
 		info.rom_header->prg_size, info.rom_header->chr_size, info.mapper_number);
 
-	uword nmi = read_w(NMI_VECTOR, &hardware);
-	uword reset = read_w(RESET_VECTOR, &hardware);
-	uword irq = read_w(IRQ_VECTOR, &hardware);
+	uword nmi = read_w(NMI_VECTOR, hardware.mem_info);
+	uword reset = read_w(RESET_VECTOR, hardware.mem_info);
+	uword irq = read_w(IRQ_VECTOR, hardware.mem_info);
 
 	printf(
 		"ROM: NMI: $%04X  RESET: $%04X  IRQ/BRK: $%04X\n",
