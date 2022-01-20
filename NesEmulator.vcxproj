@@ -18,6 +18,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="nes_rom.h" />
+    <ClInclude Include="nes_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="nes_main.c" />
+    <ClCompile Include="nes_rom.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -138,20 +146,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="nes_cpu.h" />
-    <ClInclude Include="nes_cpu_mem.h" />
-    <ClInclude Include="nes_fast_table.h" />
-    <ClInclude Include="nes_file.h" />
-    <ClInclude Include="nes_ppu.h" />
-    <ClInclude Include="nes_types.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="nes_cpu_opcodes.c" />
-    <ClCompile Include="nes_cpu.c" />
-    <ClCompile Include="nes_cpu_mem.c" />
-    <ClCompile Include="nes_file.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
