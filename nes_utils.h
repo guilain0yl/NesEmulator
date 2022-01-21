@@ -1,9 +1,9 @@
 #ifndef _NES_UTILS_H__
 #define _NES_UTILS_H__
 
-typedef char byte;
+typedef char sbyte;
 typedef unsigned char ubyte;
-typedef short word;
+typedef short sword;
 typedef unsigned short uword;
 
 #define __KB__ 1024

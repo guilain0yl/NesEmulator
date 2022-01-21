@@ -34,6 +34,7 @@ typedef struct NES_ROM_INFO
 	void* chr_data;
 	void* trainer_data;
 	ubyte mapper_number;
+	void* hardware;
 }nes_rom_info, * p_nes_rom_info;
 
 int load_rom(const char* path, p_nes_rom_info info);

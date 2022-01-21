@@ -29,9 +29,9 @@
   <ItemGroup>
     <ClCompile Include="mapper\nes_mapper_000.c" />
     <ClCompile Include="nes_cpu.c" />
+    <ClCompile Include="nes_cpu_opcodes.c" />
     <ClCompile Include="nes_main.c" />
     <ClCompile Include="nes_mapper.c" />
-    <ClCompile Include="nes_mem.c" />
     <ClCompile Include="nes_rom.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -16,25 +16,28 @@
     <Filter Include="源文件\mapper">
       <UniqueIdentifier>{bfeccde1-0380-4547-82ab-d51ac484c0a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\hardware">
+      <UniqueIdentifier>{e409169f-4191-4cdc-a087-002402c86c95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="nes_rom.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="nes_utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="nes_mapper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nes_cpu.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="nes_hardware.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="nes_cpu.h">
+      <Filter>头文件\hardware</Filter>
+    </ClInclude>
     <ClInclude Include="nes_mem.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="nes_rom.h">
+      <Filter>头文件\hardware</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +56,7 @@
     <ClCompile Include="mapper\nes_mapper_000.c">
       <Filter>源文件\mapper</Filter>
     </ClCompile>
-    <ClCompile Include="nes_mem.c">
+    <ClCompile Include="nes_cpu_opcodes.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
