@@ -108,3 +108,4 @@ void init_cpu(p_nes_cpu_info info)
 	info->registers.SP = 0xFF;
 	init_opcodes(info);
 }
+

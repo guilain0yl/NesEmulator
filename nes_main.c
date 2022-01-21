@@ -6,22 +6,31 @@
 
 int main()
 {
-	nes_rom_info info;
-	nes_mem_info mem;
+	nes_rom_info rom_info;
+	nes_mem_info mem_info;
+	nes_cpu_info cpu_info;
 	nes_hardware_info hardware;
 
-	memset(&info, 0x0, sizeof(nes_rom_info));
-	memset(&mem, 0x0, sizeof(nes_mem_info));
+	memset(&rom_info, 0x0, sizeof(nes_rom_info));
+	memset(&mem_info, 0x0, sizeof(nes_mem_info));
+	memset(&cpu_info, 0x0, sizeof(nes_cpu_info));
 	memset(&hardware, 0x0, sizeof(nes_hardware_info));
 
-	load_rom("F:\\m_project\\NesEmulator\\readme\\nestest.nes", &info);
-	hardware.rom_info = &info;
-	hardware.mem_info = &mem;
+	hardware.rom_info = &rom_info;
+	hardware.mem_info = &mem_info;
+	hardware.cpu_info = &cpu_info;
+	rom_info.hardware = &hardware;
+	mem_info.hardware = &hardware;
+	cpu_info.hardware = &hardware;
+
+	init_cpu(hardware.cpu_info);
+
+	load_rom("F:\\m_project\\NesEmulator\\readme\\nestest.nes", &rom_info);
 
 	nes_mapper_000_reset(&hardware);
 
 	printf("ROM: PRG-ROM: %d x 16kb   CHR-ROM %d x 8kb   Mapper: %03d\n", \
-		info.rom_header->prg_size, info.rom_header->chr_size, info.mapper_number);
+		rom_info.rom_header->prg_size, rom_info.rom_header->chr_size, rom_info.mapper_number);
 
 	uword nmi = read_word(hardware.mem_info, NMI_VECTOR);
 	uword reset = read_word(hardware.mem_info, RESET_VECTOR);
@@ -32,7 +41,19 @@ int main()
 		(int)nmi, (int)reset, (int)irq
 	);
 
-	unload_rom(&info);
+	ubyte s1 = read_byte(hardware.mem_info, nmi);
+	ubyte s2 = read_byte(hardware.mem_info, reset);
+	ubyte s3 = read_byte(hardware.mem_info, irq);
+
+	//
+	printf(
+		"NMI:     %s\n"
+		"RESET:   %s\n"
+		"IRQ/BRK: %s\n",
+		opcodes_name[s1], opcodes_name[s2], opcodes_name[s3]
+	);
+
+	unload_rom(&rom_info);
 
 	return 0;
 }

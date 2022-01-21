@@ -143,6 +143,5 @@ F:\m_project\NesEmulator\nes_cpu_opcodes.c(1128,37): warning C4133: “函数”
 F:\m_project\NesEmulator\nes_cpu_opcodes.c(1513,29): warning C4133: “函数”: 从“p_nes_cpu_info”到“p_nes_mem_info”的类型不兼容
   nes_main.c
   nes_mapper.c
-  nes_rom.c
   正在生成代码...
   NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe
