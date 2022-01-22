@@ -2,6 +2,49 @@
 
 // http://www.oxyron.de/html/opcodes02.html
 
+
+
+
+#ifdef DEBUG
+#include<stdio.h>
+#include<string.h>
+char logs[512];
+#endif
+
+static void log(p_nes_hardware_info info, int size)
+{
+#ifdef DEBUG
+	memset(logs, 0x0, sizeof(logs));
+	ubyte code = read_byte(info->mem_info, info->cpu_info->registers.PC);
+	if (size == 0)
+	{
+		sprintf(logs, "%04X  %02X %s",
+			info->cpu_info->registers.PC, code, opcodes_name[code]);
+	}
+	else if (size == 1)
+	{
+		ubyte operand = read_byte(info->mem_info, info->cpu_info->registers.PC + 1);
+		sprintf(logs, "%04X  %02X %02X %s $%02X",
+			info->cpu_info->registers.PC, code, operand, opcodes_name[code], operand);
+	}
+	else
+	{
+		uword operand = read_word(info->mem_info, info->cpu_info->registers.PC + 1);
+		sprintf(logs, "%04X  %02X %02X %02X %s $%04X",
+			info->cpu_info->registers.PC, code, ((ubyte)(operand & 0xFF)),
+			((ubyte)(operand >> 8)), opcodes_name[code], operand);
+	}
+	printf(
+		"%s   A:%02X X:%02X Y:%02X P:%02X SP:%02X\n",
+		logs, info->cpu_info->registers.A,
+		info->cpu_info->registers.X,
+		info->cpu_info->registers.Y,
+		info->cpu_info->registers.P,
+		info->cpu_info->registers.SP
+	);
+#endif
+}
+
 // stack
 static inline void push_byte(p_nes_mem_info info, ubyte data)
 {
@@ -44,42 +87,63 @@ static inline set_n_z_flag(p_nes_cpu_info info, ubyte v)
 // return address
 static inline ubyte A_ZP(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 1);
+#endif
 	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	info->registers.PC += 2;
 	return operand;
 }
 static inline ubyte A_ZPX(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword address = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1) + info->registers.X;
 	info->registers.PC += 2;
 	return (ubyte)(address & 0xff);
 }
 static inline ubyte A_ZPY(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword address = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1) + info->registers.Y;
 	info->registers.PC += 2;
 	return (ubyte)(address & 0xff);
 }
 static inline uword A_ABS(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	info->registers.PC += 3;
 	return operand;
 }
 static inline uword A_ABX(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword address = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1) + info->registers.X;
 	info->registers.PC += 3;
 	return address;
 }
 static inline uword A_ABY(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword address = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1) + info->registers.Y;
 	info->registers.PC += 3;
 	return address;
 }
 static inline uword A_IND(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 2);
+#endif
 	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	uword address = read_word_jump_ind(((p_nes_hardware_info)info->hardware)->mem_info, operand);
 	info->registers.PC += 3;
@@ -87,10 +151,16 @@ static inline uword A_IND(p_nes_cpu_info info)
 }
 static inline void IMP_ACC(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 0);
+#endif
 	info->registers.PC++;
 }
 static inline ubyte IMM(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 1);
+#endif
 	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	info->registers.PC += 2;
 	return operand;
@@ -99,12 +169,18 @@ static inline ubyte IMM(p_nes_cpu_info info)
 // PC+result
 static inline sbyte A_REL(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 1);
+#endif
 	sbyte operand = (sbyte)read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	info->registers.PC += 2;
 	return operand;
 }
 static inline uword A_IZX(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 1);
+#endif
 	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	ubyte address = (operand + info->registers.X) & 0xFF;
 	info->registers.PC += 2;
@@ -112,6 +188,9 @@ static inline uword A_IZX(p_nes_cpu_info info)
 }
 static inline uword A_IZY(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	log(info->hardware, 1);
+#endif
 	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
 	uword address = zp_read_word(((p_nes_hardware_info)info->hardware)->mem_info, operand) + info->registers.Y;
 	info->registers.PC += 2;
@@ -338,7 +417,7 @@ static inline void lda_iml_d(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte data = func(info);
 	info->registers.A = data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void sta_iml_a(p_nes_cpu_info info, func_uword func)
 {
@@ -354,7 +433,7 @@ static inline void ldx_iml_d(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte data = func(info);
 	info->registers.X = data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+	set_n_z_flag(info, info->registers.X);
 }
 static inline void stx_iml_a(p_nes_cpu_info info, func_uword func)
 {
@@ -370,7 +449,7 @@ static inline void ldy_iml_d(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte data = func(info);
 	info->registers.Y = data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+	set_n_z_flag(info, info->registers.Y);
 }
 static inline void sty_iml_a(p_nes_cpu_info info, func_uword func)
 {
@@ -385,15 +464,15 @@ static inline void sty_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 // branch
 static inline void branch_true(p_nes_cpu_info info, ubyte flag)
 {
-	sbyte operand = A_REL(info) + (sbyte)info->registers.PC;
+	sword operand = (sword)A_REL(info) + (sword)info->registers.PC;
 	if (info->registers.P & flag)
-		info->registers.PC = operand;
+		info->registers.PC = (uword)operand;
 }
 static inline void branch_false(p_nes_cpu_info info, ubyte flag)
 {
-	sbyte operand = A_REL(info) + (sbyte)info->registers.PC;
+	sword operand = (sword)A_REL(info) + (sword)info->registers.PC;
 	if (!(info->registers.P & flag))
-		info->registers.PC = operand;
+		info->registers.PC = (uword)operand;
 }
 // Illegal opcodes
 static inline void slo_iml_a(p_nes_cpu_info info, func_uword func)
@@ -543,7 +622,7 @@ static inline void lax_iml_d(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte data = func(info);
 	info->registers.A = info->registers.X = data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void dcp_iml_a(p_nes_cpu_info info, func_uword func)
 {
@@ -666,7 +745,7 @@ static inline void ANC_IMM(p_nes_cpu_info info)
 	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte data = IMM(info);
 	info->registers.A &= data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 	// this command performs an AND operation only, but bit 7 is put into the carry, as if the ASL/ROL would have been executed.
 	if (info->registers.A & 0x80)
 		set_flag(info, FLAG_C);
@@ -1244,7 +1323,7 @@ static inline void DEY(p_nes_cpu_info info)
 	// 88
 	IMP_ACC(info);
 	info->registers.Y -= 1;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+	set_n_z_flag(info, info->registers.Y);
 }
 static inline void TXA(p_nes_cpu_info info)
 {
@@ -1252,7 +1331,7 @@ static inline void TXA(p_nes_cpu_info info)
 	// A:=X
 	IMP_ACC(info);
 	info->registers.A = info->registers.X;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void XAA_IMM(p_nes_cpu_info info)
 {
@@ -1260,7 +1339,7 @@ static inline void XAA_IMM(p_nes_cpu_info info)
 	// A:=X&#{imm}
 	ubyte data = IMM(info);
 	info->registers.A = info->registers.X & data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void STY_ABS(p_nes_cpu_info info)
 {
@@ -1324,7 +1403,7 @@ static inline void TYA(p_nes_cpu_info info)
 	// 98
 	IMP_ACC(info);
 	info->registers.A = info->registers.Y;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void STA_ABY(p_nes_cpu_info info)
 {
@@ -1412,7 +1491,7 @@ static inline void TAY(p_nes_cpu_info info)
 	// A8
 	IMP_ACC(info);
 	info->registers.Y = info->registers.A;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+	set_n_z_flag(info, info->registers.Y);
 }
 static inline void LDA_IMM(p_nes_cpu_info info)
 {
@@ -1424,7 +1503,7 @@ static inline void TAX(p_nes_cpu_info info)
 	// AA
 	IMP_ACC(info);
 	info->registers.X = info->registers.A;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+	set_n_z_flag(info, info->registers.X);
 }
 static inline void LAX_IMM(p_nes_cpu_info info)
 {
@@ -1503,7 +1582,7 @@ static inline void TSX(p_nes_cpu_info info)
 	// BA
 	IMP_ACC(info);
 	info->registers.X = info->registers.SP;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+	set_n_z_flag(info, info->registers.X);
 }
 static inline void LAS_ABY(p_nes_cpu_info info)
 {
@@ -1511,7 +1590,7 @@ static inline void LAS_ABY(p_nes_cpu_info info)
 	uword address = A_ABY(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address) & info->registers.SP;
 	info->registers.A = info->registers.X = info->registers.SP = data;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.A]);
+	set_n_z_flag(info, info->registers.A);
 }
 static inline void LDY_ABX(p_nes_cpu_info info)
 {
@@ -1574,7 +1653,7 @@ static inline void INY(p_nes_cpu_info info)
 	// C8
 	IMP_ACC(info);
 	info->registers.Y += 1;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.Y]);
+	set_n_z_flag(info, info->registers.Y);
 }
 static inline void CMP_IMM(p_nes_cpu_info info)
 {
@@ -1586,7 +1665,7 @@ static inline void DEX(p_nes_cpu_info info)
 	// CA
 	IMP_ACC(info);
 	info->registers.X -= 1;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+	set_n_z_flag(info, info->registers.X);
 }
 static inline void AXS_IMM(p_nes_cpu_info info)
 {
@@ -1721,7 +1800,7 @@ static inline void INX(p_nes_cpu_info info)
 	// E8
 	IMP_ACC(info);
 	info->registers.X += 1;
-	set_n_z_flag(info, g_flag_nz_table[info->registers.X]);
+	set_n_z_flag(info, info->registers.X);
 }
 static inline void SBC_IMM(p_nes_cpu_info info)
 {

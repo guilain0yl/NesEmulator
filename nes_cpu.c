@@ -105,7 +105,14 @@ void init_cpu(p_nes_cpu_info info)
 {
 	init_fast_table();
 	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
+#ifdef DEBUG
+	info->registers.SP = 0xFD;
+	info->registers.P = FLAG_R | FLAG_I;
+#else
 	info->registers.SP = 0xFF;
+	info->registers.P = FLAG_Z | FLAG_R | FLAG_I;
+#endif
+
 	info->clock = 0;
 	memset(info->opcodes, 0x0, sizeof(info->opcodes));
 	init_opcodes(info);
@@ -114,7 +121,13 @@ void init_cpu(p_nes_cpu_info info)
 void reset_cpu(p_nes_cpu_info info)
 {
 	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
+#ifdef DEBUG
+	info->registers.SP = 0xFD;
+	info->registers.P = FLAG_R | FLAG_I;
+#else
 	info->registers.SP = 0xFF;
+	info->registers.P = FLAG_Z | FLAG_R | FLAG_I;
+#endif
 	info->clock = 0;
 }
 
