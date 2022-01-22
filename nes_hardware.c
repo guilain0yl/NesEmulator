@@ -59,14 +59,13 @@ end:
 	return result;
 }
 
-static void uninit_hardware(p_nes_hardware_info p_hardware_info)
+static void reset_hardware(p_nes_hardware_info p_hardware_info)
 {
-	memset(p_hardware_info->mem_info, 0x0, sizeof(nes_mem_info));
-	memset(&p_hardware_info->cpu_info->registers, 0x0, sizeof(nes_cpu_registers));
+	unload_rom(p_hardware_info->rom_info);
+	reset_cpu(p_hardware_info->cpu_info);
 
+	memset(p_hardware_info->mem_info, 0x0, sizeof(nes_mem_info));
 	p_hardware_info->mem_info->hardware = p_hardware_info;
-	p_hardware_info->cpu_info->registers.SP = 0xFF;
-	p_hardware_info->cpu_info->hardware = p_hardware_info;
 }
 
 inline static int load_mapper(p_nes_hardware_info info)
@@ -97,12 +96,9 @@ static int load_nes_file(const char* path, p_nes_rom_info info)
 
 int reset_nes(p_nes_hardware_info p_hardware_info, const char* path)
 {
-	int result = unload_rom(p_hardware_info->rom_info);
-	if (result != NES_SUCCESS)
-		return result;
+	reset_hardware(p_hardware_info);
 
-	uninit_hardware(p_hardware_info);
-	result = load_nes_file(path, p_hardware_info->rom_info);
+	int result = load_nes_file(path, p_hardware_info->rom_info);
 	if (result != NES_SUCCESS)
 		return result;
 

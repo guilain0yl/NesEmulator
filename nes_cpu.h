@@ -324,5 +324,6 @@ static struct FAST_TABLE g_ror_table[2][256];
 
 void init_cpu(p_nes_cpu_info info);
 void cpu_run(p_nes_cpu_info info);
+void reset_cpu(p_nes_cpu_info info);
 
 #endif

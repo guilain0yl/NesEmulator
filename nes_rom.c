@@ -98,7 +98,7 @@ end:
 	return result;
 }
 
-int unload_rom(p_nes_rom_info info)
+void unload_rom(p_nes_rom_info info)
 {
 	if (info->rom_header != NULL)
 		free(info->rom_header);
@@ -111,6 +111,4 @@ int unload_rom(p_nes_rom_info info)
 
 	if (info->chr_data != NULL)
 		free(info->chr_data);
-
-	return NES_SUCCESS;
 }

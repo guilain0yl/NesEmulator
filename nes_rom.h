@@ -38,7 +38,7 @@ typedef struct NES_ROM_INFO
 }nes_rom_info, * p_nes_rom_info;
 
 int load_rom(const char* path, p_nes_rom_info info);
-int unload_rom(p_nes_rom_info info);
+void unload_rom(p_nes_rom_info info);
 
 //https://wiki.nesdev.org/w/index.php?title=INES
 

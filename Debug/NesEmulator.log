@@ -1,2 +1,4 @@
-﻿  nes_hardware.c
+﻿  nes_cpu.c
+  nes_hardware.c
+  正在生成代码...
   NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe

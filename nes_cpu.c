@@ -104,8 +104,10 @@ static void init_fast_table()
 void init_cpu(p_nes_cpu_info info)
 {
 	init_fast_table();
-	memset(info, 0x0, sizeof(nes_cpu_info));
+	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
 	info->registers.SP = 0xFF;
+
+	memset(info->opcodes, 0x0, sizeof(info->opcodes));
 	init_opcodes(info);
 }
 
@@ -118,3 +120,8 @@ void cpu_run(p_nes_cpu_info info)
 	}
 }
 
+void reset_cpu(p_nes_cpu_info info)
+{
+	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
+	info->registers.SP = 0xFF;
+}
