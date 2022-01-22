@@ -144,10 +144,6 @@ static inline ubyte D_ABS(p_nes_cpu_info info)
 {
 	return read_byte(((p_nes_hardware_info)info->hardware)->mem_info, A_ABS(info));
 }
-static inline uword D_ABS_W(p_nes_cpu_info info)
-{
-	return read_word(((p_nes_hardware_info)info->hardware)->mem_info, A_ABS(info));
-}
 static inline ubyte D_ABX(p_nes_cpu_info info)
 {
 	return read_byte(((p_nes_hardware_info)info->hardware)->mem_info, A_ABX(info));
@@ -776,7 +772,7 @@ static inline void SLO_ABX(p_nes_cpu_info info)
 static inline void JSR_ABS(p_nes_cpu_info info)
 {
 	// 20
-	uword data = D_ABS_W(info);
+	uword data = A_ABS(info);
 	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
 	info->registers.PC = data;
 }
@@ -980,7 +976,7 @@ static inline void ALR_IMM(p_nes_cpu_info info)
 static inline void JMP_ABS(p_nes_cpu_info info)
 {
 	// 4C
-	info->registers.PC = D_ABS_W(info);
+	info->registers.PC = A_ABS(info);
 }
 static inline void EOR_ABS(p_nes_cpu_info info)
 {

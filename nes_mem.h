@@ -33,7 +33,7 @@ static inline void zp_write_byte(p_nes_mem_info info, ubyte address, ubyte data)
 
 static inline uword zp_read_word(p_nes_mem_info info, ubyte address)
 {
-	return zp_read_byte(info, address) | (uword)zp_read_byte(info, address + 1) << 8;
+	return zp_read_byte(info, address) | ((uword)zp_read_byte(info, address + 1)) << 8;
 }
 
 static inline ubyte read_byte(p_nes_mem_info info, uword address)
@@ -76,15 +76,15 @@ static inline void write_byte(p_nes_mem_info info, uword address, ubyte data)
 
 static inline uword read_word(p_nes_mem_info info, uword address)
 {
-	return read_byte(info, address) | read_byte(info, address + 1) << 8;
+	return read_byte(info, address) | ((uword)read_byte(info, address + 1)) << 8;
 }
 
 // 6502's indirect absolute jmp(opcode: 6C) has a bug (added at 01/08/15 )
 static inline uword read_word_jump_ind(p_nes_mem_info info, uword address)
 {
 	return 0x00FF == (address & 0x00FF)
-		? read_byte(info, address) | (uword)read_byte(info, address - 0x00FF) << 8
-		: read_byte(info, address) | read_byte(info, address + 1) << 8;
+		? read_byte(info, address) | ((uword)read_byte(info, address - 0x00FF)) << 8
+		: read_byte(info, address) | ((uword)read_byte(info, address + 1)) << 8;
 }
 
 static inline void write_word(p_nes_mem_info info, uword address, uword data)
