@@ -38,6 +38,7 @@ typedef struct NES_CPU_INFO
 	nes_cpu_registers registers;
 	opcode_func opcodes[0xFF + 1];
 	void* hardware;
+	long long clock;
 }nes_cpu_info, * p_nes_cpu_info;
 
 #ifdef DEBUG
@@ -57,7 +58,7 @@ static char opcodes_name[0xFF + 1][16] = { {'B','R','K'},
 {'O','R','A','_','A','B','S'},
 {'A','S','L','_','A','B','S'},
 {'S','L','O','_','A','B','S'},
-{'B','L','P','_','R','E','L'},
+{'B','P','L','_','R','E','L'},
 {'O','R','A','_','I','Z','Y'},
 {'S','L','O','_','I','Z','Y'},
 {' '},

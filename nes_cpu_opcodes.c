@@ -41,6 +41,123 @@ static inline set_n_z_flag(p_nes_cpu_info info, ubyte v)
 	set_flag(info, g_flag_nz_table[v]);
 }
 
+// addressing mode
+// zero page
+static inline ubyte AM_ZP(p_nes_cpu_info info)
+{
+	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, operand);
+	info->registers.PC += 2;
+
+	return data;
+}
+// indexed zero page
+static inline ubyte AM_IZP_X(p_nes_cpu_info info)
+{
+	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	ubyte address = (operand + info->registers.X) & 0xFF;
+	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 2;
+
+	return data;
+}
+static inline ubyte AM_IZP_Y(p_nes_cpu_info info)
+{
+	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	ubyte address = (operand + info->registers.Y) & 0xFF;
+	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 2;
+
+	return data;
+}
+// Absolute
+static inline ubyte AM_ABS(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	ubyte data = read_word(((p_nes_hardware_info)info->hardware)->mem_info, operand);
+	info->registers.PC += 3;
+
+	return data;
+}
+// Indexed Absolute
+static inline ubyte AM_ABS_X(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	uword address = operand + info->registers.X;
+	ubyte data = read_word(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 3;
+
+	return data;
+}
+static inline ubyte AM_ABS_Y(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	uword address = operand + info->registers.Y;
+	ubyte data = read_word(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 3;
+
+	return data;
+}
+// Indirect
+static inline ubyte AM_IND(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	uword address = read_word(((p_nes_hardware_info)info->hardware)->mem_info, operand);
+	uword data = read_word(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 3;
+
+	return data;
+}
+static inline ubyte AM_IND_BUG(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	uword address = read_word_jump_ind(((p_nes_hardware_info)info->hardware)->mem_info, operand);
+	uword data = read_word(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 3;
+
+	return data;
+}
+// Implied
+// Accumulator
+// Immediate
+static inline ubyte AM_IMM(p_nes_cpu_info info)
+{
+	uword operand = read_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	info->registers.PC += 2;
+
+	return operand;
+}
+// Relative
+static inline sbyte AM_REL(p_nes_cpu_info info)
+{
+	sbyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	info->registers.PC += 2;
+
+	return operand;
+}
+// Indexed Indirect
+static inline ubyte AM_IZX(p_nes_cpu_info info)
+{
+	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	ubyte zp_address = (operand + info->registers.X) & 0xFF;
+	uword address = zp_read_word(((p_nes_hardware_info)info->hardware)->mem_info, zp_address);
+	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 2;
+
+	return data;
+}
+// Indirect Indexed
+static inline ubyte AM_IZY(p_nes_cpu_info info)
+{
+	ubyte operand = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC + 1);
+	uword address = zp_read_word(((p_nes_hardware_info)info->hardware)->mem_info, operand);
+	address += info->registers.Y;
+	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	info->registers.PC += 2;
+
+	return data;
+}
+
 // return address
 static inline ubyte A_ZP(p_nes_cpu_info info)
 {
@@ -141,10 +258,6 @@ static inline ubyte D_ZPY(p_nes_cpu_info info)
 static inline ubyte D_ABS(p_nes_cpu_info info)
 {
 	return read_byte(((p_nes_hardware_info)info->hardware)->mem_info, A_ABS(info));
-}
-static inline uword D_ABS_W(p_nes_cpu_info info)
-{
-	return read_word(((p_nes_hardware_info)info->hardware)->mem_info, A_ABS(info));
 }
 static inline ubyte D_ABX(p_nes_cpu_info info)
 {
@@ -609,6 +722,7 @@ static inline void BRK(p_nes_cpu_info info)
 	set_flag(info, FLAG_I);
 	reset_flag(info, FLAG_D);
 	info->registers.PC = read_word(((p_nes_hardware_info)info->hardware)->mem_info, IRQ_VECTOR);
+	info->clock += 7;
 }
 static inline void ORA_IZX(p_nes_cpu_info info)
 {
@@ -692,7 +806,7 @@ static inline void SLO_ABS(p_nes_cpu_info info)
 	slo_iml_a(info, A_ABS);
 }
 // 0x10-0x1f
-static inline void BLP_REL(p_nes_cpu_info info)
+static inline void BPL_REL(p_nes_cpu_info info)
 {
 	// 10
 	branch_false(info, FLAG_N);
@@ -772,7 +886,7 @@ static inline void SLO_ABX(p_nes_cpu_info info)
 static inline void JSR_ABS(p_nes_cpu_info info)
 {
 	// 20
-	uword data = D_ABS_W(info);
+	uword data = A_ABS(info);
 	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
 	info->registers.PC = data;
 }
@@ -976,7 +1090,7 @@ static inline void ALR_IMM(p_nes_cpu_info info)
 static inline void JMP_ABS(p_nes_cpu_info info)
 {
 	// 4C
-	info->registers.PC = D_ABS_W(info);
+	info->registers.PC = A_ABS(info);
 }
 static inline void EOR_ABS(p_nes_cpu_info info)
 {
@@ -1833,7 +1947,7 @@ static void init_opcodes(p_nes_cpu_info info)
 	info->opcodes[0xF] = SLO_ABS;
 
 	// 0x10-0x1f
-	info->opcodes[0x10] = BLP_REL;
+	info->opcodes[0x10] = BPL_REL;
 	info->opcodes[0x11] = ORA_IZY;
 	info->opcodes[0x13] = SLO_IZY;
 	info->opcodes[0x14] = NOP_ZPX;

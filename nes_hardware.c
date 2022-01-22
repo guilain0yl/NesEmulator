@@ -103,7 +103,11 @@ int reset_nes(p_nes_hardware_info p_hardware_info, const char* path)
 		return result;
 
 	// reset vector
-	p_hardware_info->cpu_info->registers.PC = read_word(p_hardware_info->mem_info, RESET_VECTOR);
+	//p_hardware_info->cpu_info->registers.PC = read_word(p_hardware_info->mem_info, RESET_VECTOR);
+	// 
+	// https://wiki.nesdev.org/w/index.php/Emulator_tests
+	// testnes.nes Start execution at $C000 and compare execution with a known good log
+	p_hardware_info->cpu_info->registers.PC = 0xC000;
 
 	cpu_run(p_hardware_info->cpu_info);
 

@@ -106,9 +106,16 @@ void init_cpu(p_nes_cpu_info info)
 	init_fast_table();
 	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
 	info->registers.SP = 0xFF;
-
+	info->clock = 0;
 	memset(info->opcodes, 0x0, sizeof(info->opcodes));
 	init_opcodes(info);
+}
+
+void reset_cpu(p_nes_cpu_info info)
+{
+	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
+	info->registers.SP = 0xFF;
+	info->clock = 0;
 }
 
 void cpu_run(p_nes_cpu_info info)
@@ -118,10 +125,4 @@ void cpu_run(p_nes_cpu_info info)
 		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
 		info->opcodes[opcode](info);
 	}
-}
-
-void reset_cpu(p_nes_cpu_info info)
-{
-	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
-	info->registers.SP = 0xFF;
 }

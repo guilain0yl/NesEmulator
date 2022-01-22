@@ -33,7 +33,7 @@ static inline void zp_write_byte(p_nes_mem_info info, ubyte address, ubyte data)
 
 static inline uword zp_read_word(p_nes_mem_info info, ubyte address)
 {
-	return info->memory[address] | (uword)info->memory[address + 1] << 8;
+	return zp_read_byte(info, address) | (uword)zp_read_byte(info, address + 1) << 8;
 }
 
 static inline ubyte read_byte(p_nes_mem_info info, uword address)
