@@ -109,3 +109,12 @@ void init_cpu(p_nes_cpu_info info)
 	init_opcodes(info);
 }
 
+void cpu_run(p_nes_cpu_info info)
+{
+	while (info->registers.PC)
+	{
+		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
+		info->opcodes[opcode](info);
+	}
+}
+

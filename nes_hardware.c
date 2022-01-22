@@ -1,0 +1,137 @@
+#include<stdlib.h>
+#include<string.h>
+
+#include"nes_hardware.h"
+
+#define NES_CASE_LOAD_MAPPER(id,info) case 0x##id: result=nes_mapper_##id##_reset(info);break;
+
+// init_hardware->load_rom->execute
+
+int init_hardware(p_nes_hardware_info p_hardware_info)
+{
+	int result = NES_SUCCESS;
+	p_nes_rom_info p_rom_info = NULL;
+	p_nes_mem_info p_mem_info = NULL;
+	p_nes_cpu_info p_cpu_info = NULL;
+
+	p_rom_info = malloc(sizeof(nes_rom_info));
+	if (p_rom_info == NULL)
+	{
+		result = NES_INIT_HARDWARE_ERROR;
+		goto end;
+	}
+	p_mem_info = malloc(sizeof(nes_mem_info));
+	if (p_mem_info == NULL)
+	{
+		result = NES_INIT_HARDWARE_ERROR;
+		goto end;
+	}
+	p_cpu_info = malloc(sizeof(nes_cpu_info));
+	if (p_cpu_info == NULL)
+	{
+		result = NES_INIT_HARDWARE_ERROR;
+		goto end;
+	}
+
+	memset(p_rom_info, 0x0, sizeof(nes_rom_info));
+	memset(p_mem_info, 0x0, sizeof(nes_mem_info));
+	memset(p_cpu_info, 0x0, sizeof(nes_cpu_info));
+	memset(p_hardware_info, 0x0, sizeof(nes_hardware_info));
+
+	p_hardware_info->rom_info = p_rom_info;
+	p_hardware_info->mem_info = p_mem_info;
+	p_hardware_info->cpu_info = p_cpu_info;
+	p_rom_info->hardware = p_hardware_info;
+	p_mem_info->hardware = p_hardware_info;
+	p_cpu_info->hardware = p_hardware_info;
+
+	init_cpu(p_hardware_info->cpu_info);
+
+	return result;
+end:
+	if (p_rom_info != NULL)
+		free(p_rom_info);
+	if (p_mem_info != NULL)
+		free(p_mem_info);
+	if (p_cpu_info != NULL)
+		free(p_cpu_info);
+
+	return result;
+}
+
+static void uninit_hardware(p_nes_hardware_info p_hardware_info)
+{
+	memset(p_hardware_info->mem_info, 0x0, sizeof(nes_mem_info));
+	memset(&p_hardware_info->cpu_info->registers, 0x0, sizeof(nes_cpu_registers));
+
+	p_hardware_info->mem_info->hardware = p_hardware_info;
+	p_hardware_info->cpu_info->registers.SP = 0xFF;
+	p_hardware_info->cpu_info->hardware = p_hardware_info;
+}
+
+inline static int load_mapper(p_nes_hardware_info info)
+{
+	int result = NES_SUCCESS;
+
+	// load mapper
+	switch (info->rom_info->mapper_number)
+	{
+		NES_CASE_LOAD_MAPPER(000, info);
+	default:
+		result = NES_MAPPER_NOT_FOUND_ERROR;
+	}
+
+	return result;
+}
+
+static int load_nes_file(const char* path, p_nes_rom_info info)
+{
+	int result = load_rom(path, info);
+	if (result != NES_SUCCESS)
+		return result;
+
+	result = load_mapper(info->hardware);
+
+	return result;
+}
+
+int reset_nes(p_nes_hardware_info p_hardware_info, const char* path)
+{
+	int result = unload_rom(p_hardware_info->rom_info);
+	if (result != NES_SUCCESS)
+		return result;
+
+	uninit_hardware(p_hardware_info);
+	result = load_nes_file(path, p_hardware_info->rom_info);
+	if (result != NES_SUCCESS)
+		return result;
+
+	// reset vector
+	p_hardware_info->cpu_info->registers.PC = read_word(p_hardware_info->mem_info, RESET_VECTOR);
+
+	cpu_run(p_hardware_info->cpu_info);
+
+	return result;
+}
+
+void clear_nes(p_nes_hardware_info p_hardware_info)
+{
+	if (p_hardware_info->rom_info != NULL)
+	{
+		unload_rom(p_hardware_info->rom_info);
+		free(p_hardware_info->rom_info);
+		p_hardware_info->rom_info = NULL;
+	}
+
+	if (p_hardware_info->mem_info != NULL)
+	{
+		free(p_hardware_info->mem_info);
+		p_hardware_info->mem_info = NULL;
+	}
+
+	if (p_hardware_info->cpu_info != NULL)
+	{
+		free(p_hardware_info->cpu_info);
+		p_hardware_info->cpu_info = NULL;
+	}
+}

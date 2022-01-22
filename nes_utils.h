@@ -21,6 +21,10 @@ typedef unsigned short uword;
 
 #define NES_MAPPER_PRG_COUNT_ERROR -7
 
+#define NES_INIT_HARDWARE_ERROR -8
+
+#define NES_MAPPER_NOT_FOUND_ERROR -9
+
 #define DEBUG
 
 #endif

@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 
-#include"nes_rom.h"
+#include"nes_hardware.h"
 
 
 static int malloc_and_read(FILE* fp, void** ptr, size_t size, size_t count)
@@ -111,8 +111,6 @@ int unload_rom(p_nes_rom_info info)
 
 	if (info->chr_data != NULL)
 		free(info->chr_data);
-
-	memset(info, 0x0, sizeof(nes_rom_info));
 
 	return NES_SUCCESS;
 }
