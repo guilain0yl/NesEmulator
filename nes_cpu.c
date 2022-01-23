@@ -48,7 +48,7 @@ static void init_fast_table()
 			g_lsr_table[idx].flag = FLAG_C;
 
 		if (g_lsr_table[idx].value == 0)
-			g_lsr_table[idx].flag = FLAG_Z;
+			g_lsr_table[idx].flag |= FLAG_Z;
 
 		// we don't need to consider negative numbers,because it's shift right.
 
@@ -85,10 +85,10 @@ static void init_fast_table()
 			g_ror_table[idx2][idx].value = (idx >> 1) | (idx2 << 7);
 			g_ror_table[idx2][idx].flag = 0;
 
-			if (g_ror_table[idx2][idx].value & 1)
+			if (idx & 1)
 				g_ror_table[idx2][idx].flag = FLAG_C;
 
-			else if (g_ror_table[idx2][idx].value == 0)
+			if (g_ror_table[idx2][idx].value == 0)
 				g_ror_table[idx2][idx].flag |= FLAG_Z;
 			// the value | idx2<<7 , the means the max value is value+128,so we need thought about negative number.
 			else if (g_ror_table[idx2][idx].value & 0x80)
@@ -133,9 +133,15 @@ void reset_cpu(p_nes_cpu_info info)
 
 void cpu_run(p_nes_cpu_info info)
 {
-	while (info->registers.PC)
+	while (info->registers.PC && info->registers.PC > 0x0001)
 	{
 		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
+		//if (info->registers.PC == 0xF2EE)
+		//{
+		//	// C7DA
+		//	// C5FD C5FF
+		//	printf("break point\n");
+		//}
 		info->opcodes[opcode](info);
 	}
 }

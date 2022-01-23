@@ -1,8 +1,8 @@
 #include"nes_hardware.h"
 
 // http://www.oxyron.de/html/opcodes02.html
-
-
+// PHP and PLP will change FLAG_B,but i can not find some information
+// JSR push the last address (PC + 2) and RTS's PC need add 1.(PC + 1)
 
 
 #ifdef DEBUG
@@ -18,24 +18,24 @@ static void log(p_nes_hardware_info info, int size)
 	ubyte code = read_byte(info->mem_info, info->cpu_info->registers.PC);
 	if (size == 0)
 	{
-		sprintf(logs, "%04X  %02X %s",
+		sprintf(logs, "%04X  %02X  %s",
 			info->cpu_info->registers.PC, code, opcodes_name[code]);
 	}
 	else if (size == 1)
 	{
 		ubyte operand = read_byte(info->mem_info, info->cpu_info->registers.PC + 1);
-		sprintf(logs, "%04X  %02X %02X %s $%02X",
+		sprintf(logs, "%04X  %02X %02X  %s $%02X",
 			info->cpu_info->registers.PC, code, operand, opcodes_name[code], operand);
 	}
 	else
 	{
 		uword operand = read_word(info->mem_info, info->cpu_info->registers.PC + 1);
-		sprintf(logs, "%04X  %02X %02X %02X %s $%04X",
+		sprintf(logs, "%04X  %02X %02X %02X  %s $%04X",
 			info->cpu_info->registers.PC, code, ((ubyte)(operand & 0xFF)),
 			((ubyte)(operand >> 8)), opcodes_name[code], operand);
 	}
 	printf(
-		"%s   A:%02X X:%02X Y:%02X P:%02X SP:%02X\n",
+		"%s                    A:%02X X:%02X Y:%02X P:%02X SP:%02X\n",
 		logs, info->cpu_info->registers.A,
 		info->cpu_info->registers.X,
 		info->cpu_info->registers.Y,
@@ -54,7 +54,7 @@ static inline void push_byte(p_nes_mem_info info, ubyte data)
 
 static inline ubyte pop_byte(p_nes_mem_info info)
 {
-	uword address = BASE_STACK + ((p_nes_hardware_info)info->hardware)->cpu_info->registers.SP++;
+	uword address = BASE_STACK + ++((p_nes_hardware_info)info->hardware)->cpu_info->registers.SP;
 	return read_byte(info, address);
 }
 
@@ -321,94 +321,94 @@ static inline void dec_iml_a(p_nes_cpu_info info, func_uword func)
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address) - 1;
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, data);
-	set_flag(info, g_flag_nz_table[data]);
+	set_n_z_flag(info, data);
 }
 static inline void dec_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address) - 1;
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, data);
-	set_flag(info, g_flag_nz_table[data]);
+	set_n_z_flag(info, data);
 }
 static inline void inc_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address) + 1;
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, data);
-	set_flag(info, g_flag_nz_table[data]);
+	set_n_z_flag(info, data);
 }
 static inline void inc_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address) + 1;
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, data);
-	set_flag(info, g_flag_nz_table[data]);
+	set_n_z_flag(info, data);
 }
 static inline void asl_iml_a(p_nes_cpu_info info, func_uword func)
 {
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_asl_table[data].value);
 	set_flag(info, g_asl_table[data].flag);
 }
 static inline void asl_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_asl_table[data].value);
 	set_flag(info, g_asl_table[data].flag);
 }
 static inline void rol_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
 }
 static inline void rol_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
 }
 static inline void lsr_iml_a(p_nes_cpu_info info, func_uword func)
 {
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_lsr_table[data].value);
 	set_flag(info, g_lsr_table[data].flag);
 }
 static inline void lsr_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_lsr_table[data].value);
 	set_flag(info, g_lsr_table[data].flag);
 }
 static inline void ror_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
 }
 static inline void ror_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
 }
@@ -478,9 +478,9 @@ static inline void branch_false(p_nes_cpu_info info, ubyte flag)
 static inline void slo_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	// {adr}:={adr}*2 like ASL
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_asl_table[data].value);
 	set_flag(info, g_asl_table[data].flag);
 
@@ -492,9 +492,9 @@ static inline void slo_iml_a(p_nes_cpu_info info, func_uword func)
 static inline void slo_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	// {adr}:={adr}*2 like ASL
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_asl_table[data].value);
 	set_flag(info, g_asl_table[data].flag);
 
@@ -507,9 +507,9 @@ static inline void rla_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	// {adr}:={adr}rol
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
 
@@ -522,37 +522,37 @@ static inline void rla_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	// {adr}:={adr}rol
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_rol_table[tmp][data].value);
 	set_flag(info, g_rol_table[tmp][data].flag);
 
 	// A:=A and {adr}
-	info->registers.A |= g_rol_table[tmp][data].value;
+	info->registers.A &= g_rol_table[tmp][data].value;
 	// override pre flag
 	set_flag(info, g_flag_nz_table[info->registers.A]);
 }
 static inline void sre_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	// {adr}:={adr}/2 LSR
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_lsr_table[data].value);
 	set_flag(info, g_lsr_table[data].flag);
 
 	// A:=A exor {adr}
-	info->registers.A &= g_lsr_table[data].value;
+	info->registers.A ^= g_lsr_table[data].value;
 	// override pre flag
 	set_flag(info, g_flag_nz_table[info->registers.A]);
 }
 static inline void sre_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	// {adr}:={adr}/2 LSR
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_lsr_table[data].value);
 	set_flag(info, g_lsr_table[data].flag);
 
@@ -565,9 +565,9 @@ static inline void rra_iml_a(p_nes_cpu_info info, func_uword func)
 {
 	// {adr}:={adr}ror
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	uword address = func(info);
 	ubyte data = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
 
@@ -588,9 +588,9 @@ static inline void rra_iml_a_zp(p_nes_cpu_info info, func_ubyte func)
 {
 	// first instruction. {adr}:={adr}ror
 	ubyte tmp = info->registers.P & FLAG_C;
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	ubyte address = func(info);
 	ubyte data = zp_read_byte(((p_nes_hardware_info)info->hardware)->mem_info, address);
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	zp_write_byte(((p_nes_hardware_info)info->hardware)->mem_info, address, g_ror_table[tmp][data].value);
 	set_flag(info, g_ror_table[tmp][data].flag);
 
@@ -723,8 +723,9 @@ static inline void PHP(p_nes_cpu_info info)
 {
 	// 08
 	IMP_ACC(info);
-	set_flag(info, FLAG_B | FLAG_R);
-	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.P);
+	// https://www.nesdev.com/6502_cpu.txt
+	// PHP always pushes the Break (B) flag as a `1' to the stack.
+	push_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.P | FLAG_B | FLAG_R);
 }
 static inline void ORA_IMM(p_nes_cpu_info info)
 {
@@ -734,10 +735,10 @@ static inline void ORA_IMM(p_nes_cpu_info info)
 static inline void ASL(p_nes_cpu_info info)
 {
 	// 0A
-	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	IMP_ACC(info);
-	info->registers.A = g_asl_table[info->registers.A].value;
+	reset_flag(info, FLAG_N | FLAG_Z | FLAG_C);
 	set_flag(info, g_asl_table[info->registers.A].flag);
+	info->registers.A = g_asl_table[info->registers.A].value;
 }
 static inline void ANC_IMM(p_nes_cpu_info info)
 {
@@ -852,7 +853,7 @@ static inline void JSR_ABS(p_nes_cpu_info info)
 {
 	// 20
 	uword data = A_ABS(info);
-	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
+	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC - 1);
 	info->registers.PC = data;
 }
 static inline void AND_IZX(p_nes_cpu_info info)
@@ -892,6 +893,8 @@ static inline void PLP(p_nes_cpu_info info)
 	// 28
 	IMP_ACC(info);
 	info->registers.P = pop_byte(((p_nes_hardware_info)info->hardware)->mem_info);
+	set_flag(info, FLAG_R);
+	reset_flag(info, FLAG_B);
 }
 static inline void AND_IMM(p_nes_cpu_info info)
 {
@@ -1139,7 +1142,7 @@ static inline void RTS(p_nes_cpu_info info)
 {
 	// 60
 	IMP_ACC(info);
-	info->registers.PC = pop_word(((p_nes_hardware_info)info->hardware)->mem_info);
+	info->registers.PC = pop_word(((p_nes_hardware_info)info->hardware)->mem_info) + 1;
 }
 static inline void ADC_IZX(p_nes_cpu_info info)
 {
@@ -1464,7 +1467,7 @@ static inline void LDX_IMM(p_nes_cpu_info info)
 static inline void LAX_IZX(p_nes_cpu_info info)
 {
 	// A3
-	ldx_iml_d(info, D_IZX);
+	lax_iml_d(info, D_IZX);
 }
 static inline void LDY_ZP(p_nes_cpu_info info)
 {
@@ -2040,7 +2043,7 @@ static void init_opcodes(p_nes_cpu_info info)
 	info->opcodes[0x87] = SAX_ZP;
 	info->opcodes[0x88] = DEY;
 	info->opcodes[0x89] = NOP_IMM;
-	info->opcodes[0x8A] = TAX;
+	info->opcodes[0x8A] = TXA;
 	info->opcodes[0x8B] = XAA_IMM;
 	info->opcodes[0x8C] = STY_ABS;
 	info->opcodes[0x8D] = STA_ABS;
