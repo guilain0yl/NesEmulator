@@ -26,5 +26,6 @@ typedef unsigned short uword;
 #define NES_MAPPER_NOT_FOUND_ERROR -9
 
 #define DEBUG
+#pragma warning(disable:4996)
 
 #endif

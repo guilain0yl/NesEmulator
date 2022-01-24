@@ -5,7 +5,7 @@
 
 typedef struct NES_MEM_INFO
 {
-	ubyte memory[0x8000];
+	ubyte memory[0x800];
 	void* current_lower_bank_pointer;
 	void* current_upper_bank_pointer;
 	void* hardware;
@@ -40,7 +40,8 @@ static inline ubyte read_byte(p_nes_mem_info info, uword address)
 {
 	switch (address & 0xE000)
 	{
-	case RAM_START://RAM
+	case RAM_START://RAM 2kb physical memory
+		// 0x800-0x1FFF mirrors(0X0-0X7FF)
 		return info->memory[address & 0x7FF];
 	case RAM_PPU://PPU
 		break;

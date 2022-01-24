@@ -22,6 +22,7 @@
     <ClInclude Include="nes_cpu.h" />
     <ClInclude Include="nes_hardware.h" />
     <ClInclude Include="nes_mem.h" />
+    <ClInclude Include="nes_ppu.h" />
     <ClInclude Include="nes_rom.h" />
     <ClInclude Include="nes_utils.h" />
   </ItemGroup>
