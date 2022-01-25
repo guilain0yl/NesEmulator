@@ -3,6 +3,16 @@
 
 #include"nes_utils.h"
 
+typedef struct NES_PPU_INFO
+{
+
+
+	// 
+	ubyte name_tables[0x800];
+	// 
+	ubyte *ext_name_tables;
+}nes_ppu_info, * p_nes_ppu_info;
+
 const union nes_palette_data {
 	unsigned int data;
 	struct { ubyte r, g, b, a; };
