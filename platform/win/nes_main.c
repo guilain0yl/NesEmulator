@@ -47,6 +47,25 @@ static void DrawBitmap(HWND hwnd, HDC hdc, int width, int height)
 	Sleep(1);
 }
 
+static void DrawBitmap1(HDC hdc, int width, int height)
+{
+	HDC ccd = CreateCompatibleDC(NULL);
+	HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
+	SelectObject(ccd, bmp);
+
+	for (int y = 0; y < 240; y++)
+	{
+		for (int x = 0; x < 256; x++)
+		{
+			SetPixelV(ccd, x, y, RGB(0, 0xFF, 0xFF));
+		}
+	}
+
+	BitBlt(hdc, 0, 0, width, height, ccd, 0, 0, SRCCOPY);
+	DeleteObject(bmp);
+	DeleteDC(ccd);
+}
+
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -63,7 +82,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 				SetPixelV(hdc, x, y, RGB(0, 0xFF, 0xFF));
 			}
 		}*/
-		DrawBitmap(hwnd, hdc, ps.rcPaint.right, ps.rcPaint.bottom);
+		DrawBitmap1(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
 		EndPaint(hwnd, &ps);
 		return 0;
 	case WM_DESTROY:
