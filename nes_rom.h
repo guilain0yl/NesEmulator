@@ -30,9 +30,9 @@ typedef struct ROM_HEADER
 typedef struct NES_ROM_INFO
 {
 	p_rom_header rom_header;
-	void* prg_data;
-	void* chr_data;
-	void* trainer_data;
+	ubyte* prg_data;
+	ubyte* chr_data;
+	ubyte* trainer_data;
 	ubyte mapper_number;
 	void* hardware;
 }nes_rom_info, * p_nes_rom_info;

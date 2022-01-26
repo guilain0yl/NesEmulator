@@ -3,19 +3,56 @@
 
 #include"nes_utils.h"
 
+typedef struct NES_PPU_REGISTERS
+{
+	// $2000
+	// PPU Control Register 1
+	ubyte* ppu_control_register_1;
+	// $2001
+	// PPU Control Register 2
+	ubyte* ppu_control_register_2;
+	// $2002
+	// PPU Status Register
+	ubyte* ppu_status_register;
+	// $2003
+	// SPR-RAM Address Register
+	// Holds the address in SPR-RAM to access on the next write to $2004
+	ubyte* spr_ram_address_register;
+	// $2004
+	// SPR-RAM I/O Register
+	// Writes a byte to SPR-RAM at the address indicated by $2003
+	ubyte* spr_ram_io_register;
+	// $2005
+	// VRAM Address Register 1
+	ubyte* vram_address_register_1;
+	// $2006
+	// VRAM Address Register 2
+	ubyte* vram_address_register_2;
+	// $2007
+	// VRAM I/O Register
+	// Reads or writes a byte from VRAM at the current address
+	ubyte* vram_io_register;
+}nes_ppu_registers;
+
 typedef struct NES_PPU_INFO
 {
+	// pattern tables
+	ubyte* pattern_table_0;
+	ubyte* pattern_table_1;
 
+	// Name tables and Attribute tables
+	ubyte name_attribute_tables[0x800];
+	ubyte* ext_name_attribute_tables;
 
-	// 
-	ubyte name_tables[0x800];
-	// 
-	ubyte *ext_name_tables;
+	// palette index
+	ubyte palette[0x20];
+	nes_ppu_registers registers;
+	void* hardware;
 }nes_ppu_info, * p_nes_ppu_info;
 
-const union nes_palette_data {
-	unsigned int data;
+static const union nes_palette_data {
 	struct { ubyte r, g, b, a; };
+	unsigned int data;
 }nes_palette[64] = {
 	{0x75, 0x75, 0x75, 0xFF},{0x27, 0x1B, 0x8F, 0xFF},{0x00, 0x00, 0xAB, 0xFF},{0x47, 0x00, 0x9F, 0xFF},
 	{0x8F, 0x00, 0x77, 0xFF},{0xAB, 0x00, 0x13, 0xFF},{0xA7, 0x00, 0x00, 0xFF},{0x7F, 0x0B, 0x00, 0xFF},
@@ -37,5 +74,45 @@ const union nes_palette_data {
 	{0xFF, 0xE7, 0xA3, 0xFF},{0xE3, 0xFF, 0xA3, 0xFF},{0xAB, 0xF3, 0xBF, 0xFF},{0xB3, 0xFF, 0xCF, 0xFF},
 	{0x9F, 0xFF, 0xF3, 0xFF},{0x00, 0x00, 0x00, 0xFF},{0x00, 0x00, 0x00, 0xFF},{0x00, 0x00, 0x00, 0xFF},
 };
+
+static inline ubyte read_byte_via_cpu(p_nes_ppu_info info, uword address)
+{
+	if ((address & 0x7) == 0x7)
+	{
+
+	}
+	else if ((address & 0x7) == 0x4)
+	{
+
+	}
+	else if ((address & 0x7) == 0x2)
+	{
+		return info->registers.ppu_status_register;
+	}
+
+	return (address >> 8);
+}
+static inline void write_byte_via_cpu(p_nes_ppu_info info, uword address, ubyte data) {
+	switch (address & 0x7)
+	{
+	case 0:
+		break;
+	case 1:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	case 6:
+		break;
+	case 7:
+		break;
+	}
+}
+
+void init_ppu(p_nes_ppu_info info);
+void reset_ppu(p_nes_ppu_info info);
 
 #endif // !_NES_PPU_H__

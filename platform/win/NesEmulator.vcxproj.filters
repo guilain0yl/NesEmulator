@@ -59,5 +59,8 @@
     <ClCompile Include="nes_main.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\nes_ppu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

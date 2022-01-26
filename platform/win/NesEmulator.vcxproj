@@ -151,6 +151,7 @@
     <ClCompile Include="..\..\nes_cpu.c" />
     <ClCompile Include="..\..\nes_cpu_opcodes.c" />
     <ClCompile Include="..\..\nes_hardware.c" />
+    <ClCompile Include="..\..\nes_ppu.c" />
     <ClCompile Include="..\..\nes_rom.c" />
     <ClCompile Include="nes_main.c" />
   </ItemGroup>

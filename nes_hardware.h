@@ -4,10 +4,12 @@
 #include"nes_rom.h"
 #include"nes_mem.h"
 #include"nes_cpu.h"
+#include"nes_ppu.h"
 
 typedef struct NES_HARDWARE_INFO
 {
 	p_nes_rom_info rom_info;
+	p_nes_ppu_info ppu_info;
 	p_nes_cpu_info cpu_info;
 	p_nes_mem_info mem_info;
 }nes_hardware_info, * p_nes_hardware_info;

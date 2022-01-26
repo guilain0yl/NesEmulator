@@ -7,6 +7,7 @@ typedef short sword;
 typedef unsigned short uword;
 
 #define __KB__ 1024
+#define _4_KB_ (4*__KB__)
 #define _8_KB_ (8*__KB__)
 #define _16_KB_ (16*__KB__)
 

@@ -13,6 +13,7 @@ int init_hardware(p_nes_hardware_info p_hardware_info)
 	p_nes_rom_info p_rom_info = NULL;
 	p_nes_mem_info p_mem_info = NULL;
 	p_nes_cpu_info p_cpu_info = NULL;
+	p_nes_ppu_info p_ppu_info = NULL;
 
 	p_rom_info = malloc(sizeof(nes_rom_info));
 	if (p_rom_info == NULL)
@@ -32,20 +33,31 @@ int init_hardware(p_nes_hardware_info p_hardware_info)
 		result = NES_INIT_HARDWARE_ERROR;
 		goto end;
 	}
+	p_ppu_info = malloc(sizeof(nes_ppu_info));
+	if (p_ppu_info == NULL)
+	{
+		result = NES_INIT_HARDWARE_ERROR;
+		goto end;
+	}
 
 	memset(p_rom_info, 0x0, sizeof(nes_rom_info));
 	memset(p_mem_info, 0x0, sizeof(nes_mem_info));
 	memset(p_cpu_info, 0x0, sizeof(nes_cpu_info));
+	memset(p_ppu_info, 0x0, sizeof(nes_ppu_info));
 	memset(p_hardware_info, 0x0, sizeof(nes_hardware_info));
 
 	p_hardware_info->rom_info = p_rom_info;
 	p_hardware_info->mem_info = p_mem_info;
 	p_hardware_info->cpu_info = p_cpu_info;
+	p_hardware_info->ppu_info = p_ppu_info;
 	p_rom_info->hardware = p_hardware_info;
 	p_mem_info->hardware = p_hardware_info;
 	p_cpu_info->hardware = p_hardware_info;
+	p_ppu_info->hardware = p_hardware_info;
 
 	init_cpu(p_hardware_info->cpu_info);
+
+	init_ppu(p_hardware_info->ppu_info);
 
 	return result;
 end:
@@ -55,6 +67,8 @@ end:
 		free(p_mem_info);
 	if (p_cpu_info != NULL)
 		free(p_cpu_info);
+	if (p_ppu_info != NULL)
+		free(p_ppu_info);
 
 	return result;
 }
@@ -66,8 +80,11 @@ static void reset_hardware(p_nes_hardware_info p_hardware_info)
 
 	memset(p_hardware_info->mem_info, 0x0, sizeof(nes_mem_info));
 	p_hardware_info->mem_info->hardware = p_hardware_info;
+
+	reset_ppu(p_hardware_info->ppu_info);
 }
 
+// https://wiki.nesdev.org/w/index.php?title=Mapper
 inline static int load_mapper(p_nes_hardware_info info)
 {
 	int result = NES_SUCCESS;
