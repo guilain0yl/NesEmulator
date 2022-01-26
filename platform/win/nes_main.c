@@ -1,6 +1,9 @@
 #include<Windows.h>
+#include "../../nes_hardware.h"
 
 static TCHAR szAppName[] = TEXT("NesEmulator");
+
+nes_hardware_info hardware;
 
 static void DrawBitmap(HWND hwnd, HDC hdc, int width, int height)
 {
@@ -66,6 +69,11 @@ static void DrawBitmap1(HDC hdc, int width, int height)
 	DeleteDC(ccd);
 }
 
+static void RunCpu()
+{
+	cpu_run(hardware.cpu_info);
+}
+
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -101,6 +109,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	MSG msg;
 	WNDCLASS wnd_class;
 
+	init_hardware(&hardware);
+
+	reset_nes(&hardware, "F:\\m_project\\NesEmulator\\readme\\nestest.nes");
+
 	wnd_class.style = CS_HREDRAW | CS_VREDRAW;
 	wnd_class.lpfnWndProc = WndProc;
 	wnd_class.cbClsExtra = 0;
@@ -128,11 +140,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (PeekMessageW(&msg, hwnd, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			RunCpu();
+		}
 	}
 
 	ShowCursor(TRUE);
+
+	clear_nes(&hardware);
 
 	return msg.wParam;
 }

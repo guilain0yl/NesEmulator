@@ -3,6 +3,8 @@
 
 #include"nes_utils.h"
 
+// https://wiki.nesdev.org/w/index.php?title=PPU_registers
+// todo: rename
 typedef struct NES_PPU_REGISTERS
 {
 	// $2000
@@ -47,6 +49,18 @@ typedef struct NES_PPU_INFO
 	// palette index
 	ubyte palette[0x20];
 	nes_ppu_registers registers;
+
+	// buffer value
+	ubyte buffer;
+
+	// The PPU also has a separate 256 byte area of memory, SPR-RAM (Sprite RAM), 
+	// to store the sprite attributes.
+	ubyte sprites[0x100];
+	ubyte sprites_address;
+
+	ubyte scroll[2];
+	ubyte writex2;
+	uword vramaddr;
 	void* hardware;
 }nes_ppu_info, * p_nes_ppu_info;
 
@@ -75,44 +89,13 @@ static const union nes_palette_data {
 	{0x9F, 0xFF, 0xF3, 0xFF},{0x00, 0x00, 0x00, 0xFF},{0x00, 0x00, 0x00, 0xFF},{0x00, 0x00, 0x00, 0xFF},
 };
 
-static inline ubyte read_byte_via_cpu(p_nes_ppu_info info, uword address)
-{
-	if ((address & 0x7) == 0x7)
-	{
-
-	}
-	else if ((address & 0x7) == 0x4)
-	{
-
-	}
-	else if ((address & 0x7) == 0x2)
-	{
-		return info->registers.ppu_status_register;
-	}
-
-	return (address >> 8);
-}
-static inline void write_byte_via_cpu(p_nes_ppu_info info, uword address, ubyte data) {
-	switch (address & 0x7)
-	{
-	case 0:
-		break;
-	case 1:
-		break;
-	case 3:
-		break;
-	case 4:
-		break;
-	case 5:
-		break;
-	case 6:
-		break;
-	case 7:
-		break;
-	}
-}
+ubyte read_byte_via_cpu(void* hardware, uword address);
+void write_byte_via_cpu(void* hardware, uword address, ubyte data);
 
 void init_ppu(p_nes_ppu_info info);
 void reset_ppu(p_nes_ppu_info info);
+
+void vblank_flag_start(p_nes_ppu_info info);
+void vblank_flag_end(p_nes_ppu_info info);
 
 #endif // !_NES_PPU_H__

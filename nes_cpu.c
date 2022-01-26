@@ -133,6 +133,15 @@ void reset_cpu(p_nes_cpu_info info)
 
 void cpu_run(p_nes_cpu_info info)
 {
+#ifdef DEBUG
+	for (int i = 0; i < 10000; i++)
+	{
+		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
+		info->opcodes[opcode](info);
+	}
+
+	do_vblank(info);
+#else
 	while (info->registers.PC && info->registers.PC > 0x0001)
 	{
 		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
@@ -144,4 +153,5 @@ void cpu_run(p_nes_cpu_info info)
 		//}
 		info->opcodes[opcode](info);
 	}
+#endif // DEBUG
 }

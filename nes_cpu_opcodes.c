@@ -13,7 +13,7 @@ char logs[512];
 
 static void log(p_nes_hardware_info info, int size)
 {
-#ifdef DEBUG
+#ifdef __DEBUG
 	memset(logs, 0x0, sizeof(logs));
 	ubyte code = read_byte(info->mem_info, info->cpu_info->registers.PC);
 	if (size == 0)
@@ -2171,4 +2171,23 @@ static void init_opcodes(p_nes_cpu_info info)
 	info->opcodes[0xFD] = SBC_ABX;
 	info->opcodes[0xFE] = INC_ABX;
 	info->opcodes[0xFF] = ISC_ABX;
+}
+
+
+static void NMI(p_nes_cpu_info info)
+{
+	push_word(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
+	push_byte(((p_nes_hardware_info)info->hardware)->mem_info,
+		info->registers.P | FLAG_R);
+	info->registers.P |= FLAG_I;
+	((p_nes_hardware_info)info->hardware)->cpu_info->registers.PC = read_word(((p_nes_hardware_info)info->hardware)->mem_info,
+		NMI_VECTOR);
+}
+
+static void do_vblank(p_nes_cpu_info info) {
+	vblank_flag_start(((p_nes_hardware_info)info->hardware)->ppu_info);
+	if (*((p_nes_hardware_info)info->hardware)->ppu_info->registers.ppu_control_register_1 & 0x80)
+	{
+		NMI(info);
+	}
 }

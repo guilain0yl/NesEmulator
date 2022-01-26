@@ -2,7 +2,7 @@
 #define _NES_MEM_H__
 
 #include"nes_utils.h"
-#include"nes_hardware.h"
+#include"nes_ppu.h"
 
 typedef struct NES_MEM_INFO
 {
@@ -48,7 +48,7 @@ static inline ubyte read_byte(p_nes_mem_info info, uword address)
 		// 0x800-0x1FFF mirrors(0X0-0X7FF)
 		return info->memory[address & 0x7FF];
 	case RAM_PPU://PPU
-		return read_byte_via_cpu(((p_nes_hardware_info)info->hardware)->ppu_info, address);
+		return read_byte_via_cpu(info->hardware, address);
 	case RAM_SOUND://SOUND
 		break;
 	case RAM_SRAM:
@@ -71,7 +71,7 @@ static inline void write_byte(p_nes_mem_info info, uword address, ubyte data)
 	case RAM_START://RAM
 		info->memory[address & 0x7FF] = data;
 	case RAM_PPU://PPU
-		write_byte_via_cpu(((p_nes_hardware_info)info->hardware)->ppu_info, address, data);
+		write_byte_via_cpu(info->hardware, address, data);
 		break;
 	case RAM_SOUND://SOUND
 		break;
