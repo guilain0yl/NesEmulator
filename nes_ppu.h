@@ -44,7 +44,7 @@ typedef struct NES_PPU_INFO
 
 	// Name tables and Attribute tables
 	ubyte name_attribute_tables[0x800];
-	ubyte* ext_name_attribute_tables;
+	ubyte* ex_attribute_tables;
 
 	// palette index
 	ubyte palette[0x20];

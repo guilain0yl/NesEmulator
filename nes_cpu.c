@@ -107,7 +107,7 @@ void init_cpu(p_nes_cpu_info info)
 	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
 #ifdef DEBUG
 	info->registers.SP = 0xFD;
-	info->registers.P = FLAG_R | FLAG_I;
+	info->registers.P = 0x34 | FLAG_R;
 #else
 	info->registers.SP = 0xFF;
 	info->registers.P = FLAG_Z | FLAG_R | FLAG_I;
@@ -123,9 +123,9 @@ void reset_cpu(p_nes_cpu_info info)
 	memset(&info->registers, 0x0, sizeof(nes_cpu_registers));
 #ifdef DEBUG
 	info->registers.SP = 0xFD;
-	info->registers.P = FLAG_R | FLAG_I;
+	info->registers.P = 0x34 | FLAG_R;
 #else
-	info->registers.SP = 0xFF;
+	info->registers.SP = 0xFD;
 	info->registers.P = FLAG_Z | FLAG_R | FLAG_I;
 #endif
 	info->clock = 0;
@@ -136,6 +136,16 @@ void cpu_run(p_nes_cpu_info info)
 #ifdef DEBUG
 	for (int i = 0; i < 10000; i++)
 	{
+		/*if (i == 1576)
+		{
+			int p = 0;
+		}*/
+
+		if (i == 1897)
+		{
+			int p = 0;
+		}
+
 		ubyte opcode = read_byte(((p_nes_hardware_info)info->hardware)->mem_info, info->registers.PC);
 		info->opcodes[opcode](info);
 	}
@@ -154,4 +164,6 @@ void cpu_run(p_nes_cpu_info info)
 		info->opcodes[opcode](info);
 	}
 #endif // DEBUG
+
+	p_nes_hardware_info s = (p_nes_hardware_info)info->hardware;
 }

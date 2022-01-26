@@ -29,11 +29,6 @@ void reset_ppu(p_nes_ppu_info info)
 	info->pattern_table_1 = NULL;
 
 	memset(info->name_attribute_tables, 0x0, sizeof(info->name_attribute_tables));
-	if (info->ext_name_attribute_tables != NULL)
-	{
-		free(info->ext_name_attribute_tables);
-		info->ext_name_attribute_tables = NULL;
-	}
 
 	memset(info->palette, 0x0, sizeof(info->palette));
 }
@@ -44,7 +39,7 @@ ubyte read_byte_via_cpu(void* hardware, uword address)
 
 	if ((address & 0x7) == 0x7)
 	{
-		uword real_address = address & 0x3FFF;
+		uword real_address = info->vramaddr & 0x3FFF;
 
 		if (real_address < 0x3F00)
 		{
@@ -56,7 +51,7 @@ ubyte read_byte_via_cpu(void* hardware, uword address)
 			if (real_address < 0x1000)
 				info->buffer = info->pattern_table_0[real_address];
 			else if (real_address < 0x2000)
-				info->buffer = info->pattern_table_0[real_address];
+				info->buffer = info->pattern_table_1[real_address];
 			else if (real_address < 0x2800)
 				info->buffer = info->name_attribute_tables[real_address - 0x2000];
 			else if (real_address < 0x3000)
@@ -66,8 +61,10 @@ ubyte read_byte_via_cpu(void* hardware, uword address)
 		}
 		else
 		{
-			return info->buffer = info->palette[real_address & (ubyte)0x1f];
+			return info->buffer = info->palette[real_address & (uword)0x1f];
 		}
+
+		info->vramaddr += (((*info->registers.ppu_control_register_1) & 0x4) ? 32 : 1);
 	}
 	else if ((address & 0x7) == 0x4)
 	{
@@ -76,7 +73,7 @@ ubyte read_byte_via_cpu(void* hardware, uword address)
 	else if ((address & 0x7) == 0x2)
 	{
 		ubyte data = *info->registers.ppu_status_register;
-		*info->registers.ppu_status_register &= ~0x80;
+		*info->registers.ppu_status_register &= ~(ubyte)0x80;
 		return data;
 	}
 
@@ -89,10 +86,10 @@ void write_byte_via_cpu(void* hardware, uword address, ubyte data)
 	switch (address & 0x7)
 	{
 	case 0:
-		*info->registers.ppu_control_register_1 = data;
+		(*info->registers.ppu_control_register_1) = data;
 		break;
 	case 1:
-		*info->registers.ppu_control_register_2 = data;
+		(*info->registers.ppu_control_register_2) = data;
 		break;
 	case 3:
 		info->sprites_address = data;
@@ -113,18 +110,20 @@ void write_byte_via_cpu(void* hardware, uword address, ubyte data)
 		break;
 	case 7:
 	{
-		uword real_address = address & 0x3FFF;
-		if (real_address < 0x3F00)
+		uword real_address = info->vramaddr & (uword)0x3FFF;
+		if (real_address < (uword)0x3F00)
 		{
-			ubyte data = info->buffer;
-
 			if (real_address >= 0x3000)
 				real_address &= 0x2FFF;
 
-			if (real_address >= 0x2000)
-				info->name_attribute_tables[real_address - 0x2000] = data;
-			else if (real_address >= 0x2800)
+			if (real_address >= 0x2800)
 				;
+			else if (real_address >= 0x2000)
+			{
+				int i = real_address - 0x2000;
+				info->name_attribute_tables[i] = data;
+			}
+
 		}
 		else
 		{
@@ -137,7 +136,7 @@ void write_byte_via_cpu(void* hardware, uword address, ubyte data)
 				info->palette[offset | 0x10] = data;
 			}
 		}
-		info->vramaddr += (*info->registers.ppu_control_register_1) & 0x4 ? 32 : 1;
+		info->vramaddr += (((*info->registers.ppu_control_register_1) & 0x4) ? 32 : 1);
 	}
 	break;
 	}
