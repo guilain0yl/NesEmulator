@@ -1,8 +1,0 @@
-﻿  nes_mapper_000.c
-  nes_cpu.c
-  nes_cpu_opcodes.c
-  nes_hardware.c
-  nes_main.c
-  nes_rom.c
-  正在生成代码...
-  NesEmulator.vcxproj -> F:\m_project\NesEmulator\Debug\NesEmulator.exe

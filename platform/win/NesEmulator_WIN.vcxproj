@@ -18,28 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\nes_cpu.h" />
-    <ClInclude Include="src\nes_hardware.h" />
-    <ClInclude Include="src\nes_mem.h" />
-    <ClInclude Include="src\nes_ppu.h" />
-    <ClInclude Include="src\nes_rom.h" />
-    <ClInclude Include="src\nes_utils.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\mapper\nes_mapper_000.c" />
-    <ClCompile Include="src\nes_cpu.c" />
-    <ClCompile Include="src\nes_cpu_opcodes.c" />
-    <ClCompile Include="src\nes_hardware.c" />
-    <ClCompile Include="src\nes_main_console.c" />
-    <ClCompile Include="src\nes_ppu.c" />
-    <ClCompile Include="src\nes_rom.c" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{666fc5ed-cdb7-419e-ad7a-59cd2614f5f7}</ProjectGuid>
-    <RootNamespace>NesEmulator</RootNamespace>
+    <ProjectGuid>{58eddc0d-4c26-4380-ba3b-bcfa5be4b681}</ProjectGuid>
+    <RootNamespace>NesEmulatorWIN</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -103,11 +86,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -117,11 +100,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -131,11 +114,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -145,16 +128,33 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\nes_cpu.h" />
+    <ClInclude Include="..\..\src\nes_hardware.h" />
+    <ClInclude Include="..\..\src\nes_mem.h" />
+    <ClInclude Include="..\..\src\nes_ppu.h" />
+    <ClInclude Include="..\..\src\nes_rom.h" />
+    <ClInclude Include="..\..\src\nes_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\mapper\nes_mapper_000.c" />
+    <ClCompile Include="..\..\src\nes_cpu.c" />
+    <ClCompile Include="..\..\src\nes_cpu_opcodes.c" />
+    <ClCompile Include="..\..\src\nes_hardware.c" />
+    <ClCompile Include="..\..\src\nes_ppu.c" />
+    <ClCompile Include="..\..\src\nes_rom.c" />
+    <ClCompile Include="nes_main_windows.c" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

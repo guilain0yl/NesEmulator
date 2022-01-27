@@ -1,0 +1,380 @@
+#include"nes_cpu.h"
+#include"nes_mem.h"
+
+// http://www.oxyron.de/html/opcodes02.html
+// PHP and PLP will change FLAG_B,but i can not find some information
+// JSR push the last address (PC + 2) and RTS's PC need add 1.(PC + 1)
+
+
+#define A_ZP(p_cpu_info) read_byte(p_cpu_info->memory,p_cpu_info->registers.PC++)
+#define A_ZPX(p_cpu_info) ((ubyte)((read_byte(p_cpu_info->memory,p_cpu_info->registers.PC++)+p_cpu_info->registers.X)&0xFF))
+#define A_ZPY(p_cpu_info) ((ubyte)((read_byte(p_cpu_info->memory,p_cpu_info->registers.PC++)+p_cpu_info->registers.Y)&0xFF))
+#define A_ABS(p_cpu_info) read_word(p_cpu_info->memory,p_cpu_info->registers.PC++)
+#define A_ABX(p_cpu_info)
+#define A_ABY(p_cpu_info)
+#define A_IND(p_cpu_info)
+#define IMP_ACC(p_cpu_info) (p_cpu_info->registers.PC++)
+#define IMM(p_cpu_info)
+#define A_REL(p_cpu_info)
+#define A_IZX(p_cpu_info)
+#define A_IZY(p_cpu_info)
+
+
+
+
+
+#define OP(code,process) case code:\
+{	\
+	process##;\
+	break; \
+}
+
+// 0x00-0x0F
+#define BRK(p_cpu_info) \
+	IMP_ACC(p_cpu_info);\
+	PUSHW(p_cpu_info,p_cpu_info->registers.PC);\
+	SETF(p_cpu_info,FLAG_B|FLAG_R);\
+	PUSH(p_cpu_info,p_cpu_info->registers.P);\
+	SETF(p_cpu_info,FLAG_I);\
+	RSTF(p_cpu_info,FLAG_D);\
+	p_cpu_info->registers.PC=read_word(p_cpu_info->memory,IRQ_VECTOR)
+#define ORA_IZX(p_cpu_info)\
+
+#define SLO_IZX(p_cpu_info)
+#define NOP_ZP(p_cpu_info)
+#define ORA_ZP(p_cpu_info)
+#define ASL_ZP(p_cpu_info)
+#define SLO_ZP(p_cpu_info)
+#define PHP(p_cpu_info)
+#define ORA_IMM(p_cpu_info)
+#define ASL(p_cpu_info)
+#define ANC_IMM(p_cpu_info)
+#define NOP_ABS(p_cpu_info)
+#define ORA_ABS(p_cpu_info)
+#define ASL_ABS(p_cpu_info)
+#define SLO_ABS(p_cpu_info)
+// 0x10-0x1f
+#define BPL_REL(p_cpu_info)
+#define ORA_IZY(p_cpu_info)
+#define SLO_IZY(p_cpu_info)
+#define NOP_ZPX(p_cpu_info)
+#define ORA_ZPX(p_cpu_info)
+#define ASL_ZPX(p_cpu_info)
+#define SLO_ZPX(p_cpu_info)
+#define CLC(p_cpu_info)
+#define ORA_ABY(p_cpu_info)
+#define NOP(p_cpu_info)
+#define SLO_ABY(p_cpu_info)
+#define NOP_ABX(p_cpu_info)
+#define ORA_ABX(p_cpu_info)
+#define ASL_ABX(p_cpu_info)
+#define SLO_ABX(p_cpu_info)
+// 0x20-0x2F
+#define JSR_ABS(p_cpu_info)
+#define AND_IZX(p_cpu_info)
+#define RLA_IZX(p_cpu_info)
+#define BIT_ZP(p_cpu_info)
+#define AND_ZP(p_cpu_info)
+#define ROL_ZP(p_cpu_info)
+#define RLA_ZP(p_cpu_info)
+#define PLP(p_cpu_info)
+#define AND_IMM(p_cpu_info)
+#define ROL(p_cpu_info)
+#define BIT_ABS(p_cpu_info)
+#define AND_ABS(p_cpu_info)
+#define ROL_ABS(p_cpu_info)
+#define RLA_ABS(p_cpu_info)
+// 0x30-0x3F
+#define BMI_REL(p_cpu_info)
+#define AND_IZY(p_cpu_info)
+#define RLA_IZY(p_cpu_info)
+#define AND_ZPX(p_cpu_info)
+#define ROL_ZPX(p_cpu_info)
+#define RLA_ZPX(p_cpu_info)
+#define SEC(p_cpu_info)
+#define AND_ABY(p_cpu_info)
+#define RLA_ABY(p_cpu_info)
+#define AND_ABX(p_cpu_info)
+#define ROL_ABX(p_cpu_info)
+#define RLA_ABX(p_cpu_info)
+// 0x40-0x4F
+#define RTI(p_cpu_info)
+#define EOR_IZX(p_cpu_info)
+#define SRE_IZX(p_cpu_info)
+#define EOR_ZP(p_cpu_info)
+#define LSR_ZP(p_cpu_info)
+#define SRE_ZP(p_cpu_info)
+#define PHA(p_cpu_info)
+#define EOR_IMM(p_cpu_info)
+#define LSR(p_cpu_info)
+#define ALR_IMM(p_cpu_info)
+#define JMP_ABS(p_cpu_info)
+#define EOR_ABS(p_cpu_info)
+#define LSR_ABS(p_cpu_info)
+#define SRE_ABS(p_cpu_info)
+// 0x50-0x5F
+#define BVC_REL(p_cpu_info)
+#define EOR_IZY(p_cpu_info)
+#define SRE_IZY(p_cpu_info)
+#define EOR_ZPX(p_cpu_info)
+#define LSR_ZPX(p_cpu_info)
+#define SRE_ZPX(p_cpu_info)
+#define CLI(p_cpu_info)
+#define EOR_ABY(p_cpu_info)
+#define SRE_ABY(p_cpu_info)
+#define EOR_ABX(p_cpu_info)
+#define LSR_ABX(p_cpu_info)
+#define SRE_ABX(p_cpu_info)
+// 0x60-0x6F
+#define RTS(p_cpu_info)
+#define ADC_IZX(p_cpu_info)
+#define RRA_IZX(p_cpu_info)
+#define ADC_ZP(p_cpu_info)
+#define ROR_ZP(p_cpu_info)
+#define RRA_ZP(p_cpu_info)
+#define PLA(p_cpu_info)
+#define ADC_IMM(p_cpu_info)
+#define ROR(p_cpu_info)
+#define ARR_IMM(p_cpu_info)
+#define JMP_IND(p_cpu_info)
+#define ADC_ABS(p_cpu_info)
+#define ROR_ABS(p_cpu_info)
+#define RRA_ABS(p_cpu_info)
+// 0x70-0x7F
+#define BVS_REL(p_cpu_info)
+#define ADC_IZY(p_cpu_info)
+#define RRA_IZY(p_cpu_info)
+#define ADC_ZPX(p_cpu_info)
+#define ROR_ZPX(p_cpu_info)
+#define RRA_ZPX(p_cpu_info)
+#define SEI(p_cpu_info)
+#define ADC_ABY(p_cpu_info)
+#define RRA_ABY(p_cpu_info)
+#define ADC_ABX(p_cpu_info)
+#define ROR_ABX(p_cpu_info)
+#define RRA_ABX(p_cpu_info)
+// 0x80-0x8F
+#define NOP_IMM(p_cpu_info)
+#define STA_IZX(p_cpu_info)
+#define SAX_IZX(p_cpu_info)
+#define STY_ZP(p_cpu_info)
+#define STA_ZP(p_cpu_info)
+#define STX_ZP(p_cpu_info)
+#define SAX_ZP(p_cpu_info)
+#define DEY(p_cpu_info)
+#define TXA(p_cpu_info)
+#define XAA_IMM(p_cpu_info)
+#define STY_ABS(p_cpu_info)
+#define STA_ABS(p_cpu_info)
+#define STX_ABS(p_cpu_info)
+#define SAX_ABS(p_cpu_info)
+// 0x90-0x9F
+#define BCC_REL(p_cpu_info)
+#define STA_IZY(p_cpu_info)
+#define AHX_IZY(p_cpu_info)
+#define STY_ZPX(p_cpu_info)
+#define STA_ZPX(p_cpu_info)
+#define STX_ZPY(p_cpu_info)
+#define SAX_ZPY(p_cpu_info)
+#define TYA(p_cpu_info)
+#define STA_ABY(p_cpu_info)
+#define TXS(p_cpu_info)
+#define TAS_ABY(p_cpu_info)
+#define SHY_ABX(p_cpu_info)
+#define STA_ABX(p_cpu_info)
+#define SHX_ABY(p_cpu_info)
+#define AHX_ABY(p_cpu_info)
+// 0xA0-0xAF
+#define LDY_IMM(p_cpu_info)
+#define LDA_IZX(p_cpu_info)
+#define LDX_IMM(p_cpu_info)
+#define LAX_IZX(p_cpu_info)
+#define LDY_ZP(p_cpu_info)
+#define LDA_ZP(p_cpu_info)
+#define LDX_ZP(p_cpu_info)
+#define LAX_ZP(p_cpu_info)
+#define TAY(p_cpu_info)
+#define LDA_IMM(p_cpu_info)
+#define TAX(p_cpu_info)
+#define LAX_IMM(p_cpu_info)
+#define LDY_ABS(p_cpu_info)
+#define LDA_ABS(p_cpu_info)
+#define LDX_ABS(p_cpu_info)
+#define LAX_ABS(p_cpu_info)
+// 0xB0-0xBF
+#define BCS_REL(p_cpu_info)
+#define LDA_IZY(p_cpu_info)
+#define LAX_IZY(p_cpu_info)
+#define LDY_ZPX(p_cpu_info)
+#define LDA_ZPX(p_cpu_info)
+#define LDX_ZPY(p_cpu_info)
+#define LAX_ZPY(p_cpu_info)
+#define CLV(p_cpu_info)
+#define LDA_ABY(p_cpu_info)
+#define TSX(p_cpu_info)
+#define LAS_ABY(p_cpu_info)
+#define LDY_ABX(p_cpu_info)
+#define LDA_ABX(p_cpu_info)
+#define LDX_ABY(p_cpu_info)
+#define LAX_ABY(p_cpu_info)
+// 0xC0-0xCF
+#define CPY_IMM(p_cpu_info)
+#define CMP_IZX(p_cpu_info)
+#define DCP_IZX(p_cpu_info)
+#define CPY_ZP(p_cpu_info)
+#define CMP_ZP(p_cpu_info)
+#define DEC_ZP(p_cpu_info)
+#define DCP_ZP(p_cpu_info)
+#define INY(p_cpu_info)
+#define CMP_IMM(p_cpu_info)
+#define DEX(p_cpu_info)
+#define AXS_IMM(p_cpu_info)
+#define CPY_ABS(p_cpu_info)
+#define CMP_ABS(p_cpu_info)
+#define DEC_ABS(p_cpu_info)
+#define DCP_ABS(p_cpu_info)
+// 0xD0-0xDF
+#define BNE_REL(p_cpu_info)
+#define CMP_IZY(p_cpu_info)
+#define DCP_IZY(p_cpu_info)
+#define CMP_ZPX(p_cpu_info)
+#define DEC_ZPX(p_cpu_info)
+#define DCP_ZPX(p_cpu_info)
+#define CLD(p_cpu_info)
+#define CMP_ABY(p_cpu_info)
+#define DCP_ABY(p_cpu_info)
+#define CMP_ABX(p_cpu_info)
+#define DEC_ABX(p_cpu_info)
+#define DCP_ABX(p_cpu_info)
+// 0xE0-0xEF
+#define CPX_IMM(p_cpu_info)
+#define SBC_IZX(p_cpu_info)
+#define ISC_IZX(p_cpu_info)
+#define CPX_ZP(p_cpu_info)
+#define SBC_ZP(p_cpu_info)
+#define INC_ZP(p_cpu_info)
+#define ISC_ZP(p_cpu_info)
+#define INX(p_cpu_info)
+#define SBC_IMM(p_cpu_info)
+#define CPX_ABS(p_cpu_info)
+#define SBC_ABS(p_cpu_info)
+#define INC_ABS(p_cpu_info)
+#define ISC_ABS(p_cpu_info)
+// 0xF0-0xFF
+#define BEQ_REL(p_cpu_info)
+#define SBC_IZY(p_cpu_info)
+#define ISC_IZY(p_cpu_info)
+#define SBC_ZPX(p_cpu_info)
+#define INC_ZPX(p_cpu_info)
+#define ISC_ZPX(p_cpu_info)
+#define SED(p_cpu_info)
+#define SBC_ABY(p_cpu_info)
+#define ISC_ABY(p_cpu_info)
+#define SBC_ABX(p_cpu_info)
+#define INC_ABX(p_cpu_info)
+#define ISC_ABX(p_cpu_info)
+
+
+
+static void execute_opcodes(p_nes_cpu_info info)
+{
+	ubyte opcode = read_byte(info->memory, info->registers.PC++);
+	switch (opcode)
+	{
+		// 0x00-0x0F
+		OP(0x00, BRK(info)) OP(0x01, ORA_IZX(info)) OP(0x03, SLO_IZX(info))
+			OP(0x04, NOP_ZP(info)) OP(0x05, ORA_ZP(info)) OP(0x06, ASL_ZP(info)) OP(0x07, SLO_ZP(info))
+			OP(0x08, PHP(info)) OP(0x09, ORA_IMM(info)) OP(0x0A, ASL(info)) OP(0x0B, ANC_IMM(info))
+			OP(0x0C, NOP_ABS(info)) OP(0x0D, ORA_ABS(info)) OP(0x0E, ASL_ABS(info)) OP(0x0F, SLO_ABS(info))
+
+			// 0x10-0x1F
+			OP(0x10, BPL_REL(info)) OP(0x11, ORA_IZY(info)) OP(0x13, SLO_IZY(info))
+			OP(0x14, NOP_ZPX(info)) OP(0x15, ORA_ZPX(info)) OP(0x16, ASL_ZPX(info)) OP(0x17, SLO_ZPX(info))
+			OP(0x18, CLC(info)) OP(0x19, ORA_ABY(info)) OP(0x1A, NOP(info)) OP(0x1B, SLO_ABY(info))
+			OP(0x1C, NOP_ABX(info)) OP(0x1D, ORA_ABX(info)) OP(0x1E, ASL_ABX(info)) OP(0x1F, SLO_ABX(info))
+
+			// 0x20-0x2F
+			OP(0x20, JSR_ABS(info)) OP(0x21, AND_IZX(info)) OP(0x23, RLA_IZX(info))
+			OP(0x24, BIT_ZP(info)) OP(0x25, AND_ZP(info)) OP(0x26, ROL_ZP(info)) OP(0x27, RLA_ZP(info))
+			OP(0x28, PLP(info)) OP(0x29, AND_IMM(info)) OP(0x2A, ROL(info)) OP(0x2B, ANC_IMM(info))
+			OP(0x2C, BIT_ABS(info)) OP(0x2D, AND_ABS(info)) OP(0x2E, ROL_ABS(info)) OP(0x2F, RLA_ABS(info))
+
+			// 0x30-0x3F
+			OP(0x30, BMI_REL(info)) OP(0x31, AND_IZY(info)) OP(0x33, RLA_IZY(info))
+			OP(0x34, NOP_ZPX(info)) OP(0x35, AND_ZPX(info)) OP(0x36, ROL_ZPX(info)) OP(0x37, RLA_ZPX(info))
+			OP(0x38, SEC(info)) OP(0x39, AND_ABY(info)) OP(0x3A, NOP(info)) OP(0x3B, RLA_ABY(info))
+			OP(0x3C, NOP_ABX(info)) OP(0x3D, AND_ABX(info)) OP(0x3E, ROL_ABX(info)) OP(0x3F, RLA_ABX(info))
+
+			// 0x40-0x4F
+			OP(0x40, RTI(info)) OP(0x41, EOR_IZX(info)) OP(0x43, SRE_IZX(info))
+			OP(0x44, NOP_ZP(info)) OP(0x45, EOR_ZP(info)) OP(0x46, LSR_ZP(info)) OP(0x47, SRE_ZP(info))
+			OP(0x48, PHA(info)) OP(0x49, EOR_IMM(info)) OP(0x4A, LSR(info)) OP(0x4B, ALR_IMM(info))
+			OP(0x4C, JMP_ABS(info)) OP(0x4D, EOR_ABS(info)) OP(0x4E, LSR_ABS(info)) OP(0x4F, SRE_ABS(info))
+
+			// 0x50-0x5F
+			OP(0x50, BVC_REL(info)) OP(0x51, EOR_IZY(info)) OP(0x53, SRE_IZY(info))
+			OP(0x54, NOP_ZPX(info)) OP(0x55, EOR_ZPX(info)) OP(0x56, LSR_ZPX(info)) OP(0x57, SRE_ZPX(info))
+			OP(0x58, CLI(info)) OP(0x59, EOR_ABY(info)) OP(0x5A, NOP(info)) OP(0x5B, SRE_ABY(info))
+			OP(0x5C, NOP_ABX(info)) OP(0x5D, EOR_ABX(info)) OP(0x5E, LSR_ABX(info)) OP(0x5F, SRE_ABX(info))
+
+			// 0x60-0x6F
+			OP(0x60, RTS(info)) OP(0x61, ADC_IZX(info)) OP(0x63, RRA_IZX(info))
+			OP(0x64, NOP_ZP(info)) OP(0x65, ADC_ZP(info)) OP(0x66, ROR_ZP(info)) OP(0x67, RRA_ZP(info))
+			OP(0x68, PLA(info)) OP(0x69, ADC_IMM(info)) OP(0x6A, ROR(info)) OP(0x6B, ARR_IMM(info))
+			OP(0x6C, JMP_IND(info)) OP(0x6D, ADC_ABS(info)) OP(0x6E, ROR_ABS(info)) OP(0x6F, RRA_ABS(info))
+
+			// 0x70-0x7F
+			OP(0x70, BVS_REL(info)) OP(0x71, ADC_IZY(info)) OP(0x73, RRA_IZY(info))
+			OP(0x74, NOP_ZPX(info)) OP(0x75, ADC_ZPX(info)) OP(0x76, ROR_ZPX(info)) OP(0x77, RRA_ZPX(info))
+			OP(0x78, SEI(info)) OP(0x79, ADC_ABY(info)) OP(0x7A, NOP(info)) OP(0x7B, RRA_ABY(info))
+			OP(0x7C, NOP_ABX(info)) OP(0x7D, ADC_ABX(info)) OP(0x7E, ROR_ABX(info)) OP(0x7F, RRA_ABX(info))
+
+			// 0x80-0x8F
+			OP(0x80, NOP_IMM(info)) OP(0x81, STA_IZX(info)) OP(0x82, NOP_IMM(info)) OP(0x83, SAX_IZX(info))
+			OP(0x84, STY_ZP(info)) OP(0x85, STA_ZP(info)) OP(0x86, STX_ZP(info)) OP(0x87, SAX_ZP(info))
+			OP(0x88, DEY(info)) OP(0x89, NOP_IMM(info)) OP(0x8A, TXA(info)) OP(0x8B, XAA_IMM(info))
+			OP(0x8C, STY_ABS(info)) OP(0x8D, STA_ABS(info)) OP(0x8E, STX_ABS(info)) OP(0x8F, SAX_ABS(info))
+
+			// 0x90-0x9F
+			OP(0x90, BCC_REL(info)) OP(0x91, STA_IZY(info)) OP(0x93, AHX_IZY(info))
+			OP(0x94, STY_ZPX(info)) OP(0x95, STA_ZPX(info)) OP(0x96, STX_ZPY(info)) OP(0x97, SAX_ZPY(info))
+			OP(0x98, TYA(info)) OP(0x99, STA_ABY(info)) OP(0x9A, TXS(info)) OP(0x9B, TAS_ABY(info))
+			OP(0x9C, SHY_ABX(info)) OP(0x9D, STA_ABX(info)) OP(0x9E, SHX_ABY(info)) OP(0x9F, AHX_ABY(info))
+
+			// 0xA0-0xAF
+			OP(0xA0, LDY_IMM(info)) OP(0xA1, LDA_IZX(info)) OP(0xA2, LDX_IMM(info)) OP(0xA3, LAX_IZX(info))
+			OP(0xA4, LDY_ZP(info)) OP(0xA5, LDA_ZP(info)) OP(0xA6, LDX_ZP(info)) OP(0xA7, LAX_ZP(info))
+			OP(0xA8, TAY(info)) OP(0xA9, LDA_IMM(info)) OP(0xAA, TAX(info)) OP(0xAB, LAX_IMM(info))
+			OP(0xAC, LDY_ABS(info)) OP(0xAD, LDA_ABS(info)) OP(0xAE, LDX_ABS(info)) OP(0xAF, LAX_ABS(info))
+
+			// 0xB0-0xBF
+			OP(0xB0, BCS_REL(info)) OP(0xB1, LDA_IZY(info)) OP(0xB3, LAX_IZY(info))
+			OP(0xB4, LDY_ZPX(info)) OP(0xB5, LDA_ZPX(info)) OP(0xB6, LDX_ZPY(info)) OP(0xB7, LAX_ZPY(info))
+			OP(0xB8, CLV(info)) OP(0xB9, LDA_ABY(info)) OP(0xBA, TSX(info)) OP(0xBB, LAS_ABY(info))
+			OP(0xBC, LDY_ABX(info)) OP(0xBD, LDA_ABX(info)) OP(0xBE, LDX_ABY(info)) OP(0xBF, LAX_ABY(info))
+
+			// 0xC0-0xCF
+			OP(0xC0, CPY_IMM(info)) OP(0xC1, CMP_IZX(info)) OP(0xC2, NOP_IMM(info)) OP(0xC3, DCP_IZX(info))
+			OP(0xC4, CPY_ZP(info)) OP(0xC5, CMP_ZP(info)) OP(0xC6, DEC_ZP(info)) OP(0xC7, DCP_ZP(info))
+			OP(0xC8, INY(info)) OP(0xC9, CMP_IMM(info)) OP(0xCA, DEX(info)) OP(0xCB, AXS_IMM(info))
+			OP(0xCC, CPY_ABS(info)) OP(0xCD, CMP_ABS(info)) OP(0xCE, DEC_ABS(info)) OP(0xCF, DCP_ABS(info))
+
+			// 0xD0-0xDF
+			OP(0xD0, BNE_REL(info)) OP(0xD1, CMP_IZY(info)) OP(0xD3, DCP_IZY(info))
+			OP(0xD4, NOP_ZPX(info)) OP(0xD5, CMP_ZPX(info)) OP(0xD6, DEC_ZPX(info)) OP(0xD7, DCP_ZPX(info))
+			OP(0xD8, CLD(info)) OP(0xD9, CMP_ABY(info)) OP(0xDA, NOP(info)) OP(0xDB, DCP_ABY(info))
+			OP(0xDC, NOP_ABX(info)) OP(0xDD, CMP_ABX(info)) OP(0xDE, DEC_ABX(info)) OP(0xDF, DCP_ABX(info))
+
+			// 0xE0-0xEF
+			OP(0xE0, CPX_IMM(info)) OP(0xE1, SBC_IZX(info)) OP(0xE2, NOP_IMM(info)) OP(0xE3, ISC_IZX(info))
+			OP(0xE4, CPX_ZP(info)) OP(0xE5, SBC_ZP(info)) OP(0xE6, INC_ZP(info)) OP(0xE7, ISC_ZP(info))
+			OP(0xE8, INX(info)) OP(0xE9, SBC_IMM(info)) OP(0xEA, NOP(info)) OP(0xEB, SBC_IMM(info))
+			OP(0xEC, CPX_ABS(info)) OP(0xED, SBC_ABS(info)) OP(0xEE, INC_ABS(info)) OP(0xEF, ISC_ABS(info))
+
+			// 0xF0-0xFF
+			OP(0xF0, BEQ_REL(info)) OP(0xF1, SBC_IZY(info)) OP(0xF3, ISC_IZY(info))
+			OP(0xF4, NOP_ZPX(info)) OP(0xF5, SBC_ZPX(info)) OP(0xF6, INC_ZPX(info)) OP(0xF7, ISC_ZPX(info))
+			OP(0xF8, SED(info)) OP(0xF9, SBC_ABY(info)) OP(0xFA, NOP(info)) OP(0xFB, ISC_ABY(info))
+			OP(0xFC, NOP_ABX(info)) OP(0xFD, SBC_ABX(info)) OP(0xFE, INC_ABX(info)) OP(0xFF, ISC_ABX(info))
+	}
+}
