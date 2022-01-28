@@ -77,8 +77,8 @@ static inline void get_pixel(p_nes_ppu_info info, int count,
 	for (size_t i = 0; i < 8; i++)
 	{
 		data[0 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x80) >> 6) | ((l[i] & 0x80) >> 7)] & 0x3F];
-		data[1 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x40) << 5) | ((l[i] & 0x40) >> 6)] & 0x3F];
-		data[2 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x20) << 4) | ((l[i] & 0x20) >> 5)] & 0x3F];
+		data[1 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x40) >> 5) | ((l[i] & 0x40) >> 6)] & 0x3F];
+		data[2 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x20) >> 4) | ((l[i] & 0x20) >> 5)] & 0x3F];
 		data[3 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x10) >> 3) | ((l[i] & 0x10) >> 4)] & 0x3F];
 		data[4 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x8) >> 2) | ((l[i] & 0x8) > 3)] & 0x3F];
 		data[5 + (i << 8)] = nes_palette[info->palette_bak[hb | ((h[i] & 0x4) >> 1) | ((l[i] & 0x4) > 2)] & 0x3F];
@@ -89,7 +89,7 @@ static inline void get_pixel(p_nes_ppu_info info, int count,
 
 int render(p_nes_ppu_info info, void* data)
 {
-	unsigned int* ptr = (unsigned int*)data;
+	p_nes_palette_data ptr = (p_nes_palette_data)data;
 
 	if (ptr == NULL)
 		return NES_NULL_POINT_ERROR;
