@@ -78,5 +78,4 @@ void unload_rom(p_nes_rom_info info);
 // 0: Board has no bus conflicts; 1: Board has bus conflicts
 #define BUS_CONFLICTS(flag10) (flag10&0x20)
 
-
 #endif

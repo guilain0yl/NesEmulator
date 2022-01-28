@@ -13,6 +13,7 @@ int init_hardware(p_nes_hardware_info p_hardware_info)
 
 	p_nes_rom_info p_rom_info = NULL;
 	p_nes_cpu_info p_cpu_info = NULL;
+	p_nes_ppu_info p_ppu_info = NULL;
 
 	p_rom_info = malloc(sizeof(nes_rom_info));
 	if (p_rom_info == NULL)
@@ -26,16 +27,29 @@ int init_hardware(p_nes_hardware_info p_hardware_info)
 		result = NES_INIT_HARDWARE_ERROR;
 		goto end;
 	}
+	p_ppu_info = malloc(sizeof(nes_ppu_info));
+	if (p_ppu_info == NULL)
+	{
+		result = NES_INIT_HARDWARE_ERROR;
+		goto end;
+	}
 
 	memset(p_rom_info, 0x0, sizeof(nes_rom_info));
 	memset(p_cpu_info, 0x0, sizeof(nes_cpu_info));
+	memset(p_ppu_info, 0x0, sizeof(nes_ppu_info));
 
 	p_hardware_info->p_rom_info = p_rom_info;
 	p_hardware_info->p_cpu_info = p_cpu_info;
+	p_hardware_info->p_ppu_info = p_ppu_info;
 	p_rom_info->hardware = p_hardware_info;
 	p_cpu_info->hardware = p_hardware_info;
+	p_ppu_info->hardware = p_hardware_info;
 
 	init_cpu(p_hardware_info->p_cpu_info);
+
+	init_ppu(p_hardware_info->p_ppu_info);
+
+	return result;
 
 end:
 	if (p_rom_info != NULL)
@@ -45,6 +59,8 @@ end:
 		uninit_cpu(p_cpu_info);
 		free(p_cpu_info);
 	}
+	if (p_ppu_info != NULL)
+		free(p_ppu_info);
 
 	return result;
 }
@@ -85,6 +101,8 @@ int reset_hardware(p_nes_hardware_info p_hardware_info, const char* path)
 	if (result != NES_SUCCESS)
 		return result;
 
+	reset_ppu(p_hardware_info->p_ppu_info);
+
 	result = load_nes_file(path, p_hardware_info->p_rom_info);
 	if (result != NES_SUCCESS)
 		return result;
@@ -92,7 +110,9 @@ int reset_hardware(p_nes_hardware_info p_hardware_info, const char* path)
 	p_hardware_info->p_cpu_info->registers.PC =
 		read_word(p_hardware_info->p_cpu_info->memory, RESET_VECTOR);
 
+#ifndef _DEBUG
 	cpu_run(p_hardware_info->p_cpu_info);
+#endif // DEBUG
 
 	return result;
 }
@@ -113,3 +133,12 @@ void uninit_hardware(p_nes_hardware_info p_hardware_info)
 		p_hardware_info->p_cpu_info = NULL;
 	}
 }
+
+#ifdef _DEBUG
+
+void run_cpu(p_nes_hardware_info p_hardware_info)
+{
+	cpu_run(p_hardware_info->p_cpu_info);
+}
+
+#endif

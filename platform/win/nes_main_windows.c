@@ -1,5 +1,7 @@
 #include<Windows.h>
 
+#include"../../src/nes_hardware.h"
+
 static TCHAR szAppName[] = TEXT("NesEmulator");
 
 static void DrawBitmap(HWND hwnd, HDC hdc, int width, int height)
@@ -47,42 +49,64 @@ static void DrawBitmap(HWND hwnd, HDC hdc, int width, int height)
 	Sleep(1);
 }
 
+static nes_hardware_info hardware;
+
+static nes_palette_data data[32 * 30 * 8 * 8];
+
 static void DrawBitmap1(HDC hdc, int width, int height)
 {
 	HDC ccd = CreateCompatibleDC(NULL);
-	HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
+	HBITMAP bmp = CreateCompatibleBitmap(hdc, 32 * 8, 30 * 8);
 	SelectObject(ccd, bmp);
 
-	for (int y = 0; y < 240; y++)
+	for (int y = 0; y < 30 * 8; y++)
 	{
-		for (int x = 0; x < 256; x++)
+		for (int x = 0; x < 32 * 8; x++)
 		{
-			SetPixelV(ccd, x, y, RGB(0, 0xFF, 0xFF));
+			SetPixelV(ccd, x, y, RGB(data[32 * 8 * y + x].r, data[32 * 8 * y + x].g, data[32 * 8 * y + x].b));
 		}
 	}
 
-	BitBlt(hdc, 0, 0, width, height, ccd, 0, 0, SRCCOPY);
+	StretchBlt(hdc, 0, 0, width, height, ccd, 0, 0, 32 * 8, 30 * 8, SRCCOPY);
+	//BitBlt(hdc, 0, 0, width, height, ccd, 0, 0, SRCCOPY);
 	DeleteObject(bmp);
 	DeleteDC(ccd);
 }
 
-static void RunCpu()
+static void RunCpu(HWND hwnd)
 {
-	//cpu_run(hardware.cpu_info);
+	run_cpu(&hardware);
+
+	render(hardware.p_ppu_info, data);
+
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+
+	HDC hdc = GetDC(hwnd);
+	DrawBitmap1(hdc, rect.right, rect.bottom);
+	ReleaseDC(hwnd, hdc);
+
+	//InvalidateRect(hwnd, &rect, TRUE);
+}
+
+static void init()
+{
+	memset(data, 0x0, sizeof(nes_palette_data) * 32 * 30 * 8 * 8);
+
+	init_hardware(&hardware);
+
+	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\nestest.nes");
 }
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
-
 	switch (message)
 	{
-	case WM_PAINT:
-		hdc = BeginPaint(hwnd, &ps);
-		DrawBitmap1(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
-		EndPaint(hwnd, &ps);
-		return 0;
+		/*case WM_PAINT:
+			hdc = BeginPaint(hwnd, &ps);
+			DrawBitmap1(hdc, ps.rcPaint.right, ps.rcPaint.bottom);
+			EndPaint(hwnd, &ps);
+			return 0;*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -98,6 +122,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	HWND hwnd;
 	MSG msg;
 	WNDCLASS wnd_class;
+
+	init();
 
 	wnd_class.style = CS_HREDRAW | CS_VREDRAW;
 	wnd_class.lpfnWndProc = WndProc;
@@ -132,7 +158,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		}
 		else
 		{
-			//RunCpu();
+			RunCpu(hwnd);
 		}
 	}
 

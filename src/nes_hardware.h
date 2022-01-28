@@ -20,4 +20,11 @@ void uninit_hardware(p_nes_hardware_info p_hardware_info);
 
 int nes_mapper_000_reset(p_nes_hardware_info);
 
+#ifdef _DEBUG
+
+void run_cpu(p_nes_hardware_info p_hardware_info);
+int render(p_nes_ppu_info info, void* data);
+
+#endif
+
 #endif // !_NES_HARDWARE_H__

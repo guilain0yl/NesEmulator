@@ -10,6 +10,11 @@ typedef struct NES_ROM_INFO nes_rom_info, * p_nes_rom_info;
 typedef struct NES_MEM_INFO nes_mem_info, * p_nes_mem_info;
 typedef struct NES_CPU_INFO nes_cpu_info, * p_nes_cpu_info;
 typedef struct NES_PPU_INFO nes_ppu_info, * p_nes_ppu_info;
+typedef union NES_PALETTE_DATA {
+	struct { ubyte r, g, b, a; };
+	unsigned int data;
+} nes_palette_data, * p_nes_palette_data;
+
 
 #define __KB__ 1024
 #define _4_KB_ (4*__KB__)

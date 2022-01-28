@@ -2,6 +2,7 @@
 #define _NES_MEM_H__
 
 #include"nes_hardware.h"
+#include"nes_ppu.h"
 
 struct NES_MEM_INFO
 {
@@ -9,6 +10,7 @@ struct NES_MEM_INFO
 	ubyte memory[0x800];
 	void* current_lower_bank_pointer;
 	void* current_upper_bank_pointer;
+	p_nes_cpu_info p_cpu_info;
 };
 
 #define RAM_START 0x0000
@@ -44,7 +46,7 @@ static inline ubyte read_byte(p_nes_mem_info info, uword address)
 		// 0x800-0x1FFF mirrors(0X0-0X7FF)
 		return info->memory[address & 0x7FF];
 	case RAM_PPU://PPU
-		break;
+		return read_ppu_register_via_cpu(info->p_cpu_info->hardware->p_ppu_info, address);
 	case RAM_SOUND://SOUND
 		break;
 	case RAM_SRAM:
@@ -66,7 +68,9 @@ static inline void write_byte(p_nes_mem_info info, uword address, ubyte data)
 	{
 	case RAM_START://RAM
 		info->memory[address & 0x7FF] = data;
+		break;
 	case RAM_PPU://PPU
+		write_ppu_register_via_cpu(info->p_cpu_info->hardware->p_ppu_info, address, data);
 		break;
 	case RAM_SOUND://SOUND
 		break;
@@ -93,10 +97,5 @@ static inline void write_word(p_nes_mem_info info, uword address, uword data)
 	write_byte(info, address, data & 0xFF);
 	write_byte(info, address + 1, data >> 8);
 }
-
-#define PUSH(p_cpu_info,a) write_byte(p_cpu_info->memory, BASE_STACK + p_cpu_info->registers.SP--, a)
-#define POP(p_cpu_info) read_byte(p_cpu_info->memory, BASE_STACK + ++p_cpu_info->registers.SP)
-#define PUSHW(p_cpu_info,a) PUSH(p_cpu_info,(a)>>8);PUSH(p_cpu_info,(a)&0xFF)
-#define POPW(p_cpu_info) (((uword)POP(p_cpu_info)<<8)|POP(p_cpu_info))
 
 #endif

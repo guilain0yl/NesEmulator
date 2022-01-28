@@ -328,4 +328,6 @@ void cpu_run(p_nes_cpu_info info);
 int reset_cpu(p_nes_cpu_info info);
 void uninit_cpu(p_nes_cpu_info info);
 
+void opcode_NMI(p_nes_cpu_info info);
+
 #endif

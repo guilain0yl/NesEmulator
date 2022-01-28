@@ -2,6 +2,14 @@
 
 #include"nes_cpu_opcodes.c"
 
+void opcode_NMI(p_nes_cpu_info info)
+{
+	push_word(info, info->registers.PC);
+	push_byte(info, info->registers.P | FLAG_R);
+	set_flag(info, FLAG_I);
+	info->registers.PC = read_word(info->memory, NMI_VECTOR);
+}
+
 static void init_fast_table()
 {
 	ubyte idx, idx2;
@@ -117,6 +125,7 @@ int reset_cpu(p_nes_cpu_info info)
 	if (info->memory == NULL)
 		return NES_MEMORRY_ERROR;
 	memset(info->memory, 0x0, sizeof(nes_mem_info));
+	info->memory->p_cpu_info = info;
 
 	info->registers.SP = 0xFD;
 	info->registers.P = 0x34 | FLAG_R;
@@ -125,13 +134,34 @@ int reset_cpu(p_nes_cpu_info info)
 	return NES_SUCCESS;
 }
 
+void do_vblank(p_nes_hardware_info hardware)
+{
+	SET_B_BLANK(hardware->p_ppu_info);
+	if (GEN_NMI(hardware->p_ppu_info))
+	{
+		opcode_NMI(hardware->p_cpu_info);
+	}
+}
+
 void cpu_run(p_nes_cpu_info info)
 {
-	while (info->registers.PC && info->registers.PC > 0x0001)
+#if _DEBUG
+	for (size_t i = 0; i < 10000; i++)
 	{
+#else
+	while (info->registers.PC)
+	{
+#endif
+		if (i == 0x6d5)
+		{
+			int i = 0;
+		}
+
 		ubyte opcode = read_byte(info->memory, info->registers.PC);
 		info->opcodes[opcode](info);
 	}
+
+	do_vblank(info->hardware);
 }
 
 void uninit_cpu(p_nes_cpu_info info)
