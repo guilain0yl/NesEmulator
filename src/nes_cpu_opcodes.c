@@ -288,7 +288,7 @@ static inline void sbc_iml_d(p_nes_cpu_info info, func_ubyte func)
 	// When the subtraction result is 0 to 255, the carry is set.
 	// When the subtraction result is less than 0, the carry is cleared.
 	// for example. 0x1 - 0x2 == 1 0000 0001 - 0000 0010 = 1111 1111 1111 = 0xFF = -1
-	set_flag(info, g_flag_nz_table[tmp1] | \
+	set_flag(info, g_flag_nz_table[tmp1 & 0xFF] | \
 		// (info->registers.A ^ data) , ensure A and data haven't same sign
 		// (info->registers.A ^ tmp1) , ensure A and result have same sign,if not, overflow,like 2 - -2 = -2
 		(((info->registers.A ^ data) & (info->registers.A ^ tmp1) & 0x80) ? FLAG_V : 0) | \

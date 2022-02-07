@@ -110,6 +110,54 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	case WM_KEYDOWN:
+		if (!(lParam & (LPARAM)(1 << 30)))
+		{
+	case WM_KEYUP:
+		if (wParam == 'W')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_UP, 0x0);
+			}
+		}
+		else if (wParam == 'S')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_DOWN, 0x0);
+			}
+		}
+		else if (wParam == 'A')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_LEFT, 0x0);
+			}
+		}
+		else if (wParam == 'D')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_RIGHT, 0x0);
+			}
+		}
+		else if (wParam == 'U')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_SELECT, 0x0);
+			}
+		}
+		else if (wParam == 'I')
+		{
+			if (message == WM_KEYDOWN)
+			{
+				nes_input(&hardware, NES_VK_START, 0x0);
+			}
+		}
+		}
+		break;
 	default:
 		break;
 	}

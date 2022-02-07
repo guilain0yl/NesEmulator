@@ -4,10 +4,17 @@
 #include"nes_hardware.h"
 #include"nes_ppu.h"
 
+struct NES_JOYPAD_INFO
+{
+	ubyte joypad, joypad_index;
+};
+
 struct NES_MEM_INFO
 {
 	// 2KB physical memory
 	ubyte memory[0x800];
+	struct NES_JOYPAD_INFO joypad1, joypad2;
+	ubyte joypad_read_flag;
 	void* current_lower_bank_pointer;
 	void* current_upper_bank_pointer;
 	p_nes_cpu_info p_cpu_info;
@@ -48,6 +55,27 @@ static inline ubyte read_byte(p_nes_mem_info info, uword address)
 	case RAM_PPU://PPU
 		return read_ppu_register_via_cpu(info->p_cpu_info->hardware->p_ppu_info, address);
 	case RAM_SOUND://SOUND
+		switch (address & 0x1F)
+		{
+		case 0x16:
+		{
+			// joypad 1
+			ubyte data = info->joypad_read_flag
+				? (info->joypad1.joypad & 0x1)
+				: ((info->joypad1.joypad >> (info->joypad1.joypad_index & 0x7)) & 0x1);
+			info->joypad1.joypad_index++;
+			return data;
+		}
+		case 0x17:
+		{
+			// joypad 2
+			ubyte data = info->joypad_read_flag
+				? (info->joypad2.joypad & 0x1)
+				: ((info->joypad2.joypad >> (info->joypad2.joypad_index & 0x7)) & 0x1);
+			info->joypad2.joypad_index++;
+			return data;
+		}
+		}
 		break;
 	case RAM_SRAM:
 		break;
@@ -73,6 +101,20 @@ static inline void write_byte(p_nes_mem_info info, uword address, ubyte data)
 		write_ppu_register_via_cpu(info->p_cpu_info->hardware->p_ppu_info, address, data);
 		break;
 	case RAM_SOUND://SOUND
+		switch (address & 0x1F)
+		{
+		case 0x16:
+			// joypad 1
+			info->joypad_read_flag = data & 0x1;
+			if (info->joypad_read_flag)
+			{
+				info->joypad1.joypad_index = 0;
+				info->joypad2.joypad_index = 0;
+			}
+			break;
+		case 0x17:
+			break;
+		}
 		break;
 	case RAM_SRAM:
 		break;
