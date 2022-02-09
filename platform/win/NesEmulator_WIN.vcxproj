@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\nes_apu.h" />
     <ClInclude Include="..\..\src\nes_cpu.h" />
     <ClInclude Include="..\..\src\nes_hardware.h" />
     <ClInclude Include="..\..\src\nes_mem.h" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\mapper\nes_mapper_000.c" />
+    <ClCompile Include="..\..\src\nes_apu.c" />
     <ClCompile Include="..\..\src\nes_cpu.c" />
     <ClCompile Include="..\..\src\nes_cpu_opcodes.c" />
     <ClCompile Include="..\..\src\nes_hardware.c" />

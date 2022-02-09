@@ -95,7 +95,8 @@ static void init()
 
 	init_hardware(&hardware);
 
-	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\nestest.nes");
+	// nestest.nes color_test.nes
+	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\color_test.nes");
 }
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

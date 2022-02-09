@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\src\nes_rom.h">
       <Filter>头文件\hardware</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\nes_apu.h">
+      <Filter>头文件\hardware</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\nes_cpu_opcodes.c">
@@ -60,6 +63,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\nes_cpu.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\nes_apu.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
