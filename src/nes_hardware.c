@@ -123,6 +123,12 @@ void nes_input(p_nes_hardware_info p_hardware_info, ubyte joypad1, ubyte joypad2
 	p_hardware_info->p_cpu_info->memory->joypad2.joypad |= joypad2;
 }
 
+void nes_input_reset(p_nes_hardware_info p_hardware_info, ubyte joypad1, ubyte joypad2)
+{
+	p_hardware_info->p_cpu_info->memory->joypad1.joypad &= joypad1;
+	p_hardware_info->p_cpu_info->memory->joypad2.joypad &= joypad2;
+}
+
 void uninit_hardware(p_nes_hardware_info p_hardware_info)
 {
 	if (p_hardware_info->p_rom_info != NULL)

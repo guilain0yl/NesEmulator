@@ -1,8 +1,11 @@
 #include<Windows.h>
 
+#include"d2d_interface.h"
+
 #include"../../src/nes_hardware.h"
 
 static TCHAR szAppName[] = TEXT("NesEmulator");
+#define INTERVAL 17
 
 static void DrawBitmap(HWND hwnd, HDC hdc, int width, int height)
 {
@@ -75,6 +78,7 @@ static void DrawBitmap1(HDC hdc, int width, int height)
 
 static void RunCpu(HWND hwnd)
 {
+	Sleep(INTERVAL);
 	run_cpu(&hardware);
 
 	render(hardware.p_ppu_info, data);
@@ -96,7 +100,7 @@ static void init()
 	init_hardware(&hardware);
 
 	// nestest.nes color_test.nes
-	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\color_test.nes");
+	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\nestest.nes");
 }
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -117,45 +121,27 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_KEYUP:
 		if (wParam == 'W')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_UP, 0x0);
-			}
+			nes_input(&hardware, NES_VK_UP, 0x0);
 		}
 		else if (wParam == 'S')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_DOWN, 0x0);
-			}
+			nes_input(&hardware, NES_VK_DOWN, 0x0);
 		}
 		else if (wParam == 'A')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_LEFT, 0x0);
-			}
+			nes_input(&hardware, NES_VK_LEFT, 0x0);
 		}
 		else if (wParam == 'D')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_RIGHT, 0x0);
-			}
+			nes_input(&hardware, NES_VK_RIGHT, 0x0);
 		}
 		else if (wParam == 'U')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_SELECT, 0x0);
-			}
+			nes_input(&hardware, NES_VK_SELECT, 0x0);
 		}
 		else if (wParam == 'I')
 		{
-			if (message == WM_KEYDOWN)
-			{
-				nes_input(&hardware, NES_VK_START, 0x0);
-			}
+			nes_input(&hardware, NES_VK_START, 0x0);
 		}
 		}
 		break;
@@ -166,7 +152,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
+int APIENTRY wWinMain11(_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow)
 {
 	HWND hwnd;
 	MSG msg;
@@ -214,4 +203,83 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	ShowCursor(TRUE);
 
 	return msg.wParam;
+}
+
+
+extern int sub_render(void* rgba)
+{
+
+}
+
+extern void main_render(void* rgba)
+{
+	run_cpu(&hardware);
+	render(hardware.p_ppu_info, rgba);
+}
+
+extern void qsave(void* rgba)
+{
+
+}
+
+extern void qload(void* rgba)
+{
+
+}
+
+void user_input(int index, unsigned char data)
+{
+	// A, B, Select, Start, Up, Down, Left, Right
+	ubyte d = 0x0;
+
+	switch (index)
+	{
+	case 0:
+		d = NES_VK_A;
+		break;
+	case 1:
+		d = NES_VK_B;
+		break;
+	case 2:
+		d = NES_VK_SELECT;
+		break;
+	case 3:
+		d = NES_VK_START;
+		break;
+	case 4:
+		d = NES_VK_UP;
+		break;
+	case 5:
+		d = NES_VK_DOWN;
+		break;
+	case 6:
+		d = NES_VK_LEFT;
+		break;
+	case 7:
+		d = NES_VK_RIGHT;
+		break;
+	}
+
+	if (data)
+		nes_input(&hardware, d, 0x0);
+	else
+		nes_input_reset(&hardware, ~d, 0x0);
+	//p_hardware_info->p_cpu_info->memory->joypad1.joypad |= joypad1;
+	//p_hardware_info->p_cpu_info->memory->joypad2.joypad |= joypad2;
+}
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow)
+{
+	init_hardware(&hardware);
+	// nestest.nes color_test.nes
+	reset_hardware(&hardware, "F:\\m_project\\NesEmulator\\readme\\nestest.nes");
+
+	main_cpp();
+
+	uninit_hardware(&hardware);
+
+	return 0;
 }

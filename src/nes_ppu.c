@@ -115,3 +115,37 @@ int render(p_nes_ppu_info info, void* data)
 
 	return NES_SUCCESS;
 }
+
+int render_sprite(p_nes_ppu_info info, void* data)
+{
+	// https://wiki.nesdev.org/w/index.php/PPU_OAM
+	p_nes_palette_data ptr = (p_nes_palette_data)data;
+	ubyte* oam = NULL;
+
+	if (ptr == NULL)
+		return NES_NULL_POINT_ERROR;
+
+	ubyte* sprite_pattern_table = info->ppu_banks[IMAGE_PATTERN(info)];
+
+	if (SPRITE_SIZE(info))
+	{
+		// 8x16
+	}
+	else
+	{
+		// 8x8
+	}
+
+	for (size_t i = 0; i < 64; i++)
+	{
+		oam = info->ppu_oam + i * 4;
+		// Y position of top of sprite
+		oam[0];
+		// Tile index number
+		oam[1];
+		// Attributes
+		oam[2];
+		// X position of left side of sprite.
+		oam[3];
+	}
+}

@@ -146,6 +146,7 @@
     <ClInclude Include="..\..\src\nes_ppu.h" />
     <ClInclude Include="..\..\src\nes_rom.h" />
     <ClInclude Include="..\..\src\nes_utils.h" />
+    <ClInclude Include="d2d_interface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\mapper\nes_mapper_000.c" />
@@ -155,6 +156,7 @@
     <ClCompile Include="..\..\src\nes_hardware.c" />
     <ClCompile Include="..\..\src\nes_ppu.c" />
     <ClCompile Include="..\..\src\nes_rom.c" />
+    <ClCompile Include="d2d_draw.cpp" />
     <ClCompile Include="nes_main_windows.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

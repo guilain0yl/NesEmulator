@@ -19,6 +19,9 @@
     <Filter Include="头文件\hardware">
       <UniqueIdentifier>{a9d89f3a-992e-4a91-a352-e64445cfa9e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\cpp">
+      <UniqueIdentifier>{76f0b23c-63e6-421c-9f13-4b80db3f74dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\nes_hardware.h">
@@ -41,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\nes_apu.h">
       <Filter>头文件\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="d2d_interface.h">
+      <Filter>源文件\cpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\nes_apu.c">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="d2d_draw.cpp">
+      <Filter>源文件\cpp</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

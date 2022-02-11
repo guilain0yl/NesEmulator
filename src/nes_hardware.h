@@ -35,7 +35,12 @@ typedef struct NES_HARDWARE_INFO
 
 int init_hardware(p_nes_hardware_info p_hardware_info);
 int reset_hardware(p_nes_hardware_info p_hardware_info, const char* path);
+
+
 void nes_input(p_nes_hardware_info p_hardware_info, ubyte joypad1, ubyte joypad2);
+void nes_input_reset(p_nes_hardware_info p_hardware_info, ubyte joypad1, ubyte joypad2);
+
+
 void uninit_hardware(p_nes_hardware_info p_hardware_info);
 
 int nes_mapper_000_reset(p_nes_hardware_info);

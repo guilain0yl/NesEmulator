@@ -103,8 +103,12 @@ static const nes_palette_data nes_palette[64] = {
 //After each write to $2007, the address is incremented by either 1 or 32 as dictated by bit 2 of $2000.
 #define VRAM_ADDRESS_INCREMENT(ppu_info) \
 ppu_info->vram_address += (ppu_info->registers.ppu_ctrl & 0x4 ? 32 : 1)
+#define SPRITE_PATTERN(ppu_info) \
+(ppu_info->registers.ppu_ctrl & 0x8 ? 4 : 0)
 #define IMAGE_PATTERN(ppu_info) \
 (ppu_info->registers.ppu_ctrl & 0x10 ? 4 : 0)
+#define SPRITE_SIZE(ppu_info) \
+(ppu_info->registers.ppu_ctrl & 0x20)
 #define GEN_NMI(ppu_info) \
 (ppu_info->registers.ppu_ctrl&NMI_FLAG)
 #define SET_B_BLANK(ppu_info) \
